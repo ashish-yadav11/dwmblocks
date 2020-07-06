@@ -11,7 +11,7 @@ Modular status monitor for dwm written in C.
 Blocks are added and removed by editing the blocks.h file. Read it for more
 info.
 
-# Colored output and clickability
+# Colored output and Clickability
 
 The patches folder contains a patch for dwm which is required for dwmblocks to
 function properly. It adds support for colored text, clickability and cursor
@@ -55,3 +55,9 @@ Some ideas and code was taken from other projects. Credits for those go to -
 * torrinfail ([original dwmblocks implementation](https://github.com/torrinfail/dwmblocks))
 * Daniel Bylinka ([statuscmd patch for dwm](https://dwm.suckless.org/patches/statuscmd/))
 * Jeremy Jay ([statuscolors patch for dwm](https://dwm.suckless.org/patches/statuscolors/))
+
+# See also
+
+* [dsblocks](https://github.com/ashish-yadav11/dsblocks) - A clone of this
+project with the only difference being that C functions instead of external
+programs are used to update blocks and handle clicks.
