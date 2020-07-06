@@ -50,6 +50,7 @@ buttonhandler(int signal, siginfo_t *si, void *ucontext)
                         perror("buttonhandler - fork");
                         exit(1);
                 case 0:
+                        close(ConnectionNumber(dpy));
                         for (Block *current = blocks; current->pathu; current++) {
                                 if (current->signal == signal) {
                                         char button[] = { '0' + (si->si_value.sival_int & 0xff), '\0' };
@@ -79,6 +80,7 @@ getcmd(Block *block, int *sigval)
                         perror("getcmd - fork");
                         exit(1);
                 case 0:
+                        close(ConnectionNumber(dpy));
                         close(fd[0]);
                         if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
                                 perror("getcmd - dup2");
