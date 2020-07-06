@@ -27,7 +27,7 @@ static void buttonhandler(int signal, siginfo_t *si, void *ucontext);
 static void getcmd(Block *block, int *sigval);
 static void setroot();
 static void setupsignals();
-static void sighandler(int signum, siginfo_t *si, void *ucontext);
+static void sighandler(int signal, siginfo_t *si, void *ucontext);
 static void statusloop();
 static void termhandler(int signum);
 static int updatestatus();
@@ -39,7 +39,6 @@ static int statusContinue = 1;
 static char statusstr[STTLENGTH];
 static size_t delimlength;
 static Display *dpy;
-static Window root;
 
 void
 buttonhandler(int signal, siginfo_t *si, void *ucontext)
@@ -115,7 +114,7 @@ setroot()
 {
 	if (updatestatus()) /* only set root if block outputs have changed */
 		return;
-	XStoreName(dpy, root, statusstr);
+	XStoreName(dpy, DefaultRootWindow(dpy), statusstr);
         XFlush(dpy);
 }
 
@@ -151,11 +150,11 @@ setupsignals()
 }
 
 void
-sighandler(int signum, siginfo_t *si, void *ucontext)
+sighandler(int signal, siginfo_t *si, void *ucontext)
 {
-	signum -= SIGRTMIN;
+	signal -= SIGRTMIN;
 	for (Block *current = blocks; current->pathu; current++) {
-		if (current->signal == signum)
+		if (current->signal == signal)
 			getcmd(current, &(si->si_value.sival_int));
 	}
 	setroot();
@@ -294,10 +293,9 @@ main(int argc, char *argv[])
                 fputs("Error: could not open display.\n", stderr);
                 return 1;
         }
-        root = RootWindow(dpy, DefaultScreen(dpy));
 	statusloop();
         unlink(LOCKFILE);
-        XStoreName(dpy, root, "");
+        XStoreName(dpy, DefaultRootWindow(dpy), "");
         XCloseDisplay(dpy);
         return 0;
 }

@@ -39,7 +39,7 @@ the block.
 
 # xgetrootname
 
-It is a small program to get the current root name. May prove helpful in
+It is a tiny program to get the current root name. May prove helpful in
 debugging.
 
 # Installation

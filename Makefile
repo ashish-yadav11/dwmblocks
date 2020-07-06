@@ -1,24 +1,25 @@
 #PREFIX = /usr/local
 PREFIX = ${HOME}/.local
+
 CC = gcc
-CFLAGS = -Wall -Wextra  -Os
+CFLAGS = -Wall -Wextra -Wextra -O3
 CFLAGSEXTRA = -Wno-unused-parameter -Wno-missing-field-initializers
 
-build: dwmblocks sigdwmblocks
+all: dwmblocks sigdwmblocks
 
-dwmblocks: dwmblocks.c blocks.h
-	${CC} ${CFLAGS} ${CFLAGSEXTRA} -lX11 dwmblocks.c -o dwmblocks
+dwmblocks: dwmblocks.c
+	${CC} -o $@ -lX11 ${CFLAGS} ${CFLAGSEXTRA} $<
 
 sigdwmblocks: sigdwmblocks.c
-	${CC} ${CFLAGS} sigdwmblocks.c -o sigdwmblocks
+	${CC} -o $@ ${CFLAGS} sigdwmblocks.c
 
 xgetrootname: xgetrootname.c
-	${CC} ${CFLAGS} xgetrootname.c -o xgetrootname
+	${CC} -o $@ -lX11 ${CFLAGS} xgetrootname.c
 
 clean:
 	rm -f dwmblocks sigdwmblocks
 
-install: build
+install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	install -m 0755 dwmblocks ${DESTDIR}${PREFIX}/bin/dwmblocks
 	install -m 0755 sigdwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks
@@ -26,4 +27,4 @@ install: build
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks
 
-.PHONY: build clean install uninstall
+.PHONY: all clean install uninstall

@@ -5,15 +5,13 @@ int
 main()
 {
         Display *dpy;
-        Window root;
         char *name;
 
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
                 return 1;
         }
-        root = RootWindow(dpy, DefaultScreen(dpy));
-        if (XFetchName(dpy, root, &name) && name[0])
+        if (XFetchName(dpy, DefaultRootWindow(dpy), &name) && name[0])
                 printf("%s\n", name);
         else
                 puts("No name has been set for the root window.");
