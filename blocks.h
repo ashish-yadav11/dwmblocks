@@ -1,7 +1,7 @@
 /* time interval in seconds to sleep before looking for updates in the main loop */
 #define SLEEPINTERVAL			30
 
-#define PATH(name)			"/home/ashish/.scripts/statusbar/"name
+#define PATH(name)			"/home/ashish/.local/projects/dwmblocks/blocks/"name
 
 /* If multiple realtime signals are pending, then the lowest numbered signal is delivered first.
  * If interval of a block is set to 0, the block will only be updated once at startup.
