@@ -1,14 +1,14 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <X11/Xlib.h>
 
-#define CMDLENGTH			25 /* must be positive */
-#define STTLENGTH			256 /* must be big enough */
+#define CMDLENGTH			25
+#define STTLENGTH			256
 #define LOCKFILE			"/tmp/dwmblocks.pid"
 
 #define EMPTYCMDOUT(block)		(block->cmdoutcur[0] == '\n' || block->cmdoutcur[0] == '\0')
