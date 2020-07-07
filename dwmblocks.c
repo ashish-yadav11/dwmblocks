@@ -23,6 +23,8 @@ typedef struct {
         char cmdoutprv[CMDLENGTH];
 } Block;
 
+#include "blocks.h"
+
 static void buttonhandler(int signal, siginfo_t *si, void *ucontext);
 static void getcmd(Block *block, int *sigval);
 static void setroot();
@@ -32,8 +34,6 @@ static void statusloop();
 static void termhandler(int signum);
 static int updatestatus();
 static void writepid();
-
-#include "blocks.h"
 
 static int statusContinue = 1;
 static char statusstr[STTLENGTH];
