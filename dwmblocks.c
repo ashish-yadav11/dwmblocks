@@ -284,10 +284,9 @@ int
 main(int argc, char *argv[])
 {
         writepid();
-        if (argc > 2) {
+        if (argc > 2)
                 if (strcmp("-d", argv[1]) == 0)
                         delim = argv[2];
-        }
         delimlength = strlen(delim) + 1;
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
