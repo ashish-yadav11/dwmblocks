@@ -23,11 +23,11 @@ that block is executed with the first argument specifying which button was
 clicked (1 for left, 2 for middle and 3 for right by default).
 
 Colored output is inspired by the statuscolors patch for dwm. To add colors,
-have your programs for the blocks output raw characters from '\x11' to '\x31'.
-'\x11' in status text switches the active colorscheme to the first one in the
+have your programs for the blocks output raw characters from '\x0b' to '\x31'.
+'\x0b' in status text switches the active colorscheme to the first one in the
 scheme array in dwm and so on. See
 [statuscolors patch](https://dwm.suckless.org/patches/statuscolors/)
-for more info. Keep in mind that you have to start from '\x11' instead of '\x01'
+for more info. Keep in mind that you have to start from '\x0b' instead of '\x01'
 as instructed on the page.
 
 # Signaling changes
