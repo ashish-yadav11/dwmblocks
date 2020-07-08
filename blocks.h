@@ -25,7 +25,7 @@ static Block blocks[] = {
 
 	{ PATH("cpu_temp.sh"),		PATH("cpu_temp_button.sh"),		1,		5},
 
-	{ PATH("battery.sh"),		PATH("battery_button.sh"),		0,		4},
+	{ PATH("battery.sh"),		PATH("battery_button.sh"),		30,		4},
 
         { NULL } /* just to mark the end of the array */
 };
