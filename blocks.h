@@ -1,5 +1,5 @@
 /* time interval in seconds to sleep before looking for updates in the main loop */
-#define SLEEPINTERVAL			30
+#define SLEEPINTERVAL			1
 
 #define PATH(name)			"/home/ashish/.local/projects/dwmblocks/blocks/"name
 
@@ -13,19 +13,19 @@
  * patch - path of the program to be executed on clicks */
 static Block blocks[] = {
 /*	pathu				pathc					interval	signal */
-	{ PATH("hotspot.sh"),		PATH("hotspot_button.sh"),		-1,		1},
+	{ PATH("hotspot.sh"),		PATH("hotspot_button.sh"),		-1,		3},
 
 	{ PATH("time.sh"),		NULL,					30,		0},
 
-	{ PATH("calendar.sh"),		PATH("calendar_button.sh"),		60,		2},
+	{ PATH("calendar.sh"),		PATH("calendar_button.sh"),		60,		6},
 
-//	{ PATH("mail.sh"),		PATH("mail_button.sh"),			30,		3},
+//	{ PATH("mail.sh"),		PATH("mail_button.sh"),			30,		2},
 
-	{ PATH("volume.sh"),		PATH("volume_button.sh"),		0,		4},
+	{ PATH("volume.sh"),		PATH("volume_button.sh"),		0,		1},
 
-	{ PATH("cpu_temp.sh"),		PATH("cpu_temp_button.sh"),		30,		5},
+	{ PATH("cpu_temp.sh"),		PATH("cpu_temp_button.sh"),		1,		5},
 
-	{ PATH("battery.sh"),		PATH("battery_button.sh"),		0,		6},
+	{ PATH("battery.sh"),		PATH("battery_button.sh"),		0,		4},
 
         { NULL } /* just to mark the end of the array */
 };
