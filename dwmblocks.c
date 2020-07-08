@@ -57,7 +57,7 @@ buttonhandler(int signal, siginfo_t *si, void *ucontext)
 
                                         setsid();
                                         execv(arg[0], arg);
-                                        perror("buttonhandler - execv");
+                                        perror("buttonhandler - child - execv");
                                         _exit(127);
                                 }
                         }
@@ -82,7 +82,7 @@ getcmd(Block *block, int *sigval)
                         close(ConnectionNumber(dpy));
                         close(fd[0]);
                         if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
-                                perror("getcmd - dup2");
+                                perror("getcmd - child - dup2");
                                 exit(1);
                         }
                         close(fd[1]);
@@ -97,7 +97,7 @@ getcmd(Block *block, int *sigval)
 
                                 execv(arg[0], arg);
                         }
-                        perror("getcmd - execv");
+                        perror("getcmd - child - execv");
                         _exit(127);
                 default:
                         close(fd[1]);
