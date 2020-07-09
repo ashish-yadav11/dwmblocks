@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +60,7 @@ main(int argc, char *argv[])
                 if (sscanf(argv[1], "%d", &signal) == 1 &&
                     signal > 0 && (signal += SIGRTMIN) <= SIGRTMAX) {
                         if (argc == 2) {
-                                sv.sival_int = 0;
+                                sv.sival_int = INT_MIN;
                                 sendsignal(signal, sv);
                                 return 0;
                         } else if (argc == 3 &&

@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +11,7 @@
 #define CMDLENGTH			25
 #define STTLENGTH			256
 #define LOCKFILE			"/tmp/dwmblocks.pid"
+#define NILL				INT_MIN
 
 #define EMPTYCMDOUT(block)		(block->cmdoutcur[0] == '\n' || block->cmdoutcur[0] == '\0')
 #define NOTATCMDOUTEND(block, i)	(i < CMDLENGTH && block->cmdoutcur[i] != '\n' && block->cmdoutcur[i] != '\0')
@@ -26,7 +28,7 @@ typedef struct {
 #include "blocks.h"
 
 static void buttonhandler(int signal, siginfo_t *si, void *ucontext);
-static void getcmd(Block *block, int *sigval);
+static void getcmd(Block *block, int sigval);
 static void setroot();
 static void setupsignals();
 static void sighandler(int signal, siginfo_t *si, void *ucontext);
@@ -66,7 +68,7 @@ buttonhandler(int signal, siginfo_t *si, void *ucontext)
 }
 
 void
-getcmd(Block *block, int *sigval)
+getcmd(Block *block, int sigval)
 {
         int fd[2];
 
@@ -86,15 +88,15 @@ getcmd(Block *block, int *sigval)
                                 exit(1);
                         }
                         close(fd[1]);
-                        if (sigval) {
+                        if (sigval == NILL) {
+                                char *arg[] = { block->pathu, NULL };
+
+                                execv(arg[0], arg);
+                        } else {
                                 char buf[12];
                                 char *arg[] = { block->pathu, buf, NULL };
 
-                                snprintf(buf, sizeof buf, "%d", *sigval);
-                                execv(arg[0], arg);
-                        } else {
-                                char *arg[] = { block->pathu, NULL };
-
+                                snprintf(buf, sizeof buf, "%d", sigval);
                                 execv(arg[0], arg);
                         }
                         perror("getcmd - child - execv");
@@ -155,7 +157,7 @@ sighandler(int signal, siginfo_t *si, void *ucontext)
 	signal -= SIGRTMIN;
 	for (Block *current = blocks; current->pathu; current++) {
 		if (current->signal == signal)
-			getcmd(current, &(si->si_value.sival_int));
+			getcmd(current, si->si_value.sival_int);
 	}
 	setroot();
 }
@@ -168,14 +170,14 @@ statusloop()
 	setupsignals();
         for (Block *current = blocks; current->pathu; current++)
                 if (current->interval >= 0)
-                        getcmd(current, NULL);
+                        getcmd(current, NILL);
         setroot();
         sleep(SLEEPINTERVAL);
         i = SLEEPINTERVAL;
 	while (statusContinue) {
                 for (Block *current = blocks; current->pathu; current++)
                         if (current->interval > 0 && i % current->interval == 0)
-                                getcmd(current, NULL);
+                                getcmd(current, NILL);
 		setroot();
 		sleep(SLEEPINTERVAL);
 		i += SLEEPINTERVAL;
