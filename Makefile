@@ -7,7 +7,7 @@ CFLAGSEXTRA = -Wno-unused-parameter -Wno-missing-field-initializers
 
 all: dwmblocks sigdwmblocks
 
-dwmblocks: dwmblocks.c
+dwmblocks: dwmblocks.c blocks.h
 	${CC} -o $@ -lX11 ${CFLAGS} ${CFLAGSEXTRA} $<
 
 sigdwmblocks: sigdwmblocks.c
