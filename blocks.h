@@ -15,11 +15,9 @@ static Block blocks[] = {
 /*	pathu				pathc					interval	signal */
 	{ PATH("hotspot.sh"),		PATH("hotspot_button.sh"),		-1,		3},
 
-	{ PATH("time.sh"),		NULL,					30,		0},
+	{ PATH("time.sh"),		NULL,					30,		6},
 
 	{ PATH("calendar.sh"),		PATH("calendar_button.sh"),		60,		6},
-
-//	{ PATH("mail.sh"),		PATH("mail_button.sh"),			30,		2},
 
 	{ PATH("volume.sh"),		PATH("volume_button.sh"),		0,		1},
 
