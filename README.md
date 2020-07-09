@@ -33,9 +33,8 @@ as instructed on the page.
 # Signaling changes
 
 To signal a specific block to update, run `sigdwmblocks signal [sigval]`.
-`sigval` is optional and must be an integer other than `INT_MIN` defined in
-`limits.h` (`-2147483648` on my system). If provided, it is passed as the first
-argument to the program specified for updating the block.
+`sigval` is optional and must be an integer. If provided, it is passed as the
+first argument to the program specified for updating the block.
 
 # xgetrootname
 
