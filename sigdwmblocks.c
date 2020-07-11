@@ -18,7 +18,7 @@ sendsignal(int signum, union sigval sv)
         fd = open(LOCKFILE, O_RDONLY);
         if (fd == -1) {
                 if (errno == ENOENT) {
-                        fputs("Error: no running instance of dwmblocks.", stderr);
+                        fputs("Error: no running instance of dwmblocks.\n", stderr);
                         exit(2);
                 }
                 perror("sendsignal - fd");
@@ -33,15 +33,15 @@ sendsignal(int signum, union sigval sv)
                 exit(1);
         }
         if (fl.l_type == F_UNLCK) {
-                fputs("Error: no running instance of dwmblocks.", stderr);
+                fputs("Error: no running instance of dwmblocks.\n", stderr);
                 exit(2);
         }
         if (sigqueue(fl.l_pid, signum, sv) == -1) {
                 if (errno == EINVAL) {
-                        fputs("Error: invalid signal provided in argument.", stderr);
+                        fputs("Error: invalid signal provided in argument.\n", stderr);
                         exit(3);
                 } else if (errno == ESRCH) {
-                        fputs("Error: no running instance of dwmblocks.", stderr);
+                        fputs("Error: no running instance of dwmblocks.\n", stderr);
                         exit(2);
                 } else {
                         perror("sendsignal - sigqueue");
