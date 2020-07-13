@@ -287,7 +287,7 @@ main(int argc, char *argv[])
 {
         writepid();
         if (argc > 2)
-                if (strcmp("-d", argv[1]) == 0)
+                if (strcmp(argv[1], "-d") == 0)
                         delim = argv[2];
         delimlength = strlen(delim) + 1;
         if (!(dpy = XOpenDisplay(NULL))) {
