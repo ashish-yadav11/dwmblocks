@@ -4,7 +4,7 @@ Modular status monitor for dwm written in C.
 
 # Usage
 
-`dwmblocks [-d delimiter]`
+`dwmblocks [-d <delimiter>]`
 
 # Modifying blocks
 
@@ -32,8 +32,8 @@ as instructed on the page.
 
 # Signaling changes
 
-To signal a specific block to update, run `sigdwmblocks signal [sigval]`.
-`sigval` is optional and must be an integer. If provided, it is passed as the
+To signal a specific block to update, run `sigdwmblocks <signal> [<sigval>]`.
+`<sigval>` is optional and must be an integer. If provided, it is passed as the
 first argument to the program specified for updating the block.
 
 # xgetrootname

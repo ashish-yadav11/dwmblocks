@@ -71,6 +71,6 @@ main(int argc, char *argv[])
                 }
         }
 
-        fprintf(stderr, "Usage: %s signal [sigval]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <signal> [<sigval>]\n", argv[0]);
         return 3;
 }
