@@ -1,6 +1,6 @@
 diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 --- dwm-6.2-ori/config.def.h	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/config.def.h	2020-07-14 03:02:46.964798804 +0530
++++ dwm-6.2/config.def.h	2020-07-14 22:21:11.048698432 +0530
 @@ -12,10 +12,34 @@
  static const char col_gray3[]       = "#bbbbbb";
  static const char col_gray4[]       = "#eeeeee";
@@ -51,7 +51,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-06-15 20:11:02.220674229 +0530
-+++ dwm-6.2/dwm.c	2020-07-14 03:14:14.844100607 +0530
++++ dwm-6.2/dwm.c	2020-07-14 22:21:37.169392221 +0530
 @@ -40,6 +40,8 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -139,7 +139,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	int boxs = drw->fonts->h / 9;
  	int boxw = drw->fonts->h / 6 + 2;
  	unsigned int i, occ = 0, urg = 0;
-@@ -703,9 +720,28 @@
+@@ -703,9 +720,34 @@
  
  	/* draw status first so it can be overdrawn by tags later */
  	if (m == selmon) { /* status is only drawn on selected monitor */
@@ -150,10 +150,16 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                char *tp = stextc;
 +                char ctmp;
 +
-+                drw_setscheme(drw, scheme[SchemeNorm]);
-+                x = drw_text(drw, m->ww - wstext, 0, lrpad / 2, bh, 0, "", 0); /* to keep left padding clean */
++                x = drw_text(drw, wbar - wstext, 0, hlrpad, bh, 0, "", 0); /* to keep left padding clean */
++                if ((unsigned char)*ts <= LENGTH(colors) + 10) {
++                        drw_setscheme(drw, scheme[(unsigned char)*ts - 11]);
++                        tp = ++ts;
++                } else {
++                        drw_setscheme(drw, scheme[SchemeStts]);
++                        ts++;
++                }
 +                for (;;) {
-+                        if ((unsigned char)*ts > LENGTH(colors) + 10 ) {
++                        if ((unsigned char)*ts > LENGTH(colors) + 10) {
 +                                ts++;
 +                                continue;
 +                        }
@@ -167,11 +173,11 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        *ts = ctmp;
 +                        tp = ++ts;
 +                }
-+                drw_text(drw, x, 0, m->ww - x, bh, 0, "", 0); /* to keep right padding clean */
++                drw_text(drw, x, 0, wbar - x, bh, 0, "", 0); /* to keep right padding clean */
  	}
  
  	for (c = m->clients; c; c = c->next) {
-@@ -728,7 +764,7 @@
+@@ -728,7 +770,7 @@
  	drw_setscheme(drw, scheme[SchemeNorm]);
  	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
  
@@ -180,7 +186,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  		if (m->sel) {
  			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-@@ -1122,8 +1158,11 @@
+@@ -1122,8 +1164,11 @@
  	Monitor *m;
  	XMotionEvent *ev = &e->xmotion;
  
@@ -193,7 +199,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
  		unfocus(selmon->sel, 1);
  		selmon = m;
-@@ -1564,6 +1603,7 @@
+@@ -1564,6 +1609,7 @@
  	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
  	/* init cursors */
  	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -201,7 +207,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
-@@ -1637,6 +1677,28 @@
+@@ -1637,6 +1683,28 @@
  }
  
  void
@@ -230,7 +236,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  spawn(const Arg *arg)
  {
  	if (arg->v == dmenucmd)
-@@ -1805,7 +1867,7 @@
+@@ -1805,7 +1873,7 @@
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
  		.background_pixmap = ParentRelative,
@@ -239,7 +245,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	};
  	XClassHint ch = {"dwm", "dwm"};
  	for (m = mons; m; m = m->next) {
-@@ -1821,6 +1883,33 @@
+@@ -1821,6 +1889,33 @@
  }
  
  void
@@ -273,7 +279,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  updatebarpos(Monitor *m)
  {
  	m->wy = m->my;
-@@ -1847,6 +1936,31 @@
+@@ -1847,6 +1942,31 @@
  				(unsigned char *) &(c->win), 1);
  }
  
@@ -305,7 +311,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -1987,9 +2101,28 @@
+@@ -1987,9 +2107,28 @@
  void
  updatestatus(void)
  {
