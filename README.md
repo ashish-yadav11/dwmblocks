@@ -8,7 +8,7 @@ Modular status monitor for dwm written in C.
 
 # Modifying blocks
 
-Blocks are added and removed by editing the blocks.h file. Read it for more
+Blocks are added and removed by editing the `blocks.h` file. Read it for more
 info.
 
 # Colored output and Clickability
