@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/sh
 
 crit=70
 

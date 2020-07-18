@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/sh
 pactl subscribe |
     while read -r output ; do
         if [ -z "${output##*sink *}" ] ; then

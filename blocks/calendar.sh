@@ -1,2 +1,2 @@
-#!/bin/dash
+#!/bin/sh
 echo "$(date '+%a, %d %b')"

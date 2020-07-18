@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/sh
 
 volstat=$(pamixer --get-mute --get-volume)
 
