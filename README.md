@@ -1,6 +1,7 @@
 # dwmblocks
 
-Modular status monitor for dwm written in C.
+Modular status monitor for dwm written in C with support for clickability,
+cursor hinting for clickable modules and color.
 
 # Usage
 
