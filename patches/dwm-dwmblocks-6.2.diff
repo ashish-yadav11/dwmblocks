@@ -51,7 +51,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-06-15 20:11:02.220674229 +0530
-+++ dwm-6.2/dwm.c	2020-07-17 02:05:29.259671013 +0530
++++ dwm-6.2/dwm.c	2020-07-18 17:46:47.328340867 +0530
 @@ -40,6 +40,8 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -151,7 +151,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                char ctmp;
 +
 +                drw_setscheme(drw, scheme[SchemeNorm]);
-+                x = drw_text(drw, wbar - wstext, 0, hlrpad, bh, 0, "", 0); /* to keep left padding clean */
++                x = drw_text(drw, m->ww - wstext, 0, lrpad / 2, bh, 0, "", 0); /* to keep left padding clean */
 +                for (;;) {
 +                        if ((unsigned char)*ts > LENGTH(colors) + 10) {
 +                                ts++;
@@ -169,7 +169,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        tp = ++ts;
 +                }
 +                drw_setscheme(drw, scheme[SchemeNorm]);
-+                drw_text(drw, x, 0, wbar - x, bh, 0, "", 0); /* to keep right padding clean */
++                drw_text(drw, x, 0, m->ww - x, bh, 0, "", 0); /* to keep right padding clean */
  	}
  
  	for (c = m->clients; c; c = c->next) {
