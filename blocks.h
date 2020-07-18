@@ -10,7 +10,7 @@
  * If multiple realtime signals are pending, then the lowest numbered signal is delivered first. */
 
 /* pathu - path of the program whose output is to be used for status text
- * patch - path of the program to be executed on clicks */
+ * pathc - path of the program to be executed on clicks */
 static Block blocks[] = {
 /*	pathu				pathc					interval	signal */
 	{ PATH("hotspot.sh"),		PATH("hotspot_button.sh"),		-1,		3},
