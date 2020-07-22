@@ -220,6 +220,8 @@ updatestatus()
                 str += i;
                 if (current->pathc && current->signal)
                         str++;
+                if (*str == '\0')
+                        goto update2;
                 str += delimlength;
         }
 	return 1;
@@ -238,6 +240,7 @@ update1:
                 } while (NOTATCMDOUTEND(current, i));
                 if (current->pathc && current->signal)
                         *(str++) = current->signal;
+update2:
                 for (i = 0; delim[i]; i++)
                         *(str++) = delim[i];
                 *(str++) = '\n';
