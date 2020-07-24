@@ -255,7 +255,7 @@ void
 writepid()
 {
         int fd;
-        char buf[20];
+        char buf[8]; /* maximum possible pid in linux is 4194304 */
         struct flock fl;
         ssize_t len;
 
