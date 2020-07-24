@@ -17,7 +17,7 @@ static Block blocks[] = {
 
 	{ PATH("time.sh"),		NULL,					30,		10},
 
-	{ PATH("calendar.sh"),		PATH("calendar_button.sh"),		60,		6},
+	{ PATH("calendar.sh"),		PATH("calendar_button.sh"),		30,		6},
 
 	{ PATH("volume.sh"),		PATH("volume_button.sh"),		0,		1},
 
