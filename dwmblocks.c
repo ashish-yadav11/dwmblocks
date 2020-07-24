@@ -255,9 +255,7 @@ void
 writepid()
 {
         int fd;
-        char buf[8]; /* maximum possible pid in linux is 4194304 */
         struct flock fl;
-        ssize_t len;
 
         fd = open(LOCKFILE, O_RDWR|O_CREAT, 0644);
         if (fd == -1) {
@@ -280,10 +278,8 @@ writepid()
                 perror("writepid - ftruncate");
                 exit(1);
         }
-        snprintf(buf, sizeof buf, "%ld", (long)getpid());
-        len = strlen(buf);
-        if (write(fd, buf, len) != len) {
-                perror("writepid - write");
+        if (dprintf(fd, "%ld", (long)getpid()) < 0) {
+                perror("writepid - dprintf");
                 exit(1);
         }
 }
