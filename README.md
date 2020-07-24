@@ -59,5 +59,5 @@ Some ideas and code was taken from other projects. Credits for those go to -
 # See also
 
 * [dsblocks](https://github.com/ashish-yadav11/dsblocks) - A clone of this
-project with the only difference being that C functions instead of external
-programs are used to update blocks and handle clicks.
+  project with the only difference being that C functions instead of external
+  programs are used to update blocks and handle clicks.
