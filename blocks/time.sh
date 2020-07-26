@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "$(date '+%H:%M')"
+echo "$(date '+%H:%M')"

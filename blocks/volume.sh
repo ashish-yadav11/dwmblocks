@@ -3,7 +3,7 @@
 volstat=$(pamixer --get-mute --get-volume)
 
 if "${volstat% *}" ; then
-    echo "${volstat#* }%"
+    echo "${volstat#* }%"
 else
-    echo "${volstat#* }%"
+    echo "${volstat#* }%"
 fi
