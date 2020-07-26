@@ -3,7 +3,7 @@ PREFIX = ${HOME}/.local
 
 CC = gcc
 CFLAGS = -O3 -Wall -Wextra
-CFLAGSEXTRA = -Wno-unused-parameter -Wno-missing-field-initializers
+CFLAGSEXTRA = -Wno-missing-field-initializers -Wno-unused-parameter
 
 all: dwmblocks sigdwmblocks
 
@@ -11,10 +11,10 @@ dwmblocks: dwmblocks.c blocks.h
 	${CC} -o $@ -lX11 ${CFLAGS} ${CFLAGSEXTRA} $<
 
 sigdwmblocks: sigdwmblocks.c
-	${CC} -o $@ ${CFLAGS} sigdwmblocks.c
+	${CC} -o $@ ${CFLAGS} $<
 
 xgetrootname: xgetrootname.c
-	${CC} -o $@ -lX11 ${CFLAGS} xgetrootname.c
+	${CC} -o $@ -lX11 ${CFLAGS} $<
 
 clean:
 	rm -f dwmblocks sigdwmblocks
