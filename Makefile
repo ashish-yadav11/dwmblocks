@@ -2,7 +2,7 @@
 PREFIX = ${HOME}/.local
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Wextra -O3
+CFLAGS = -O3 -Wall -Wextra
 CFLAGSEXTRA = -Wno-unused-parameter -Wno-missing-field-initializers
 
 all: dwmblocks sigdwmblocks
