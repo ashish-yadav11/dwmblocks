@@ -13,8 +13,7 @@
 #define LOCKFILE			"/tmp/dwmblocks.pid"
 #define NILL				INT_MIN
 
-#define EMPTYCMDOUT(block)		(block->cmdoutcur[0] == '\n' || block->cmdoutcur[0] == '\0')
-#define NOTATCMDOUTEND(block, i)	(i < CMDLENGTH && block->cmdoutcur[i] != '\n' && block->cmdoutcur[i] != '\0')
+#define EMPTYCMDOUT(block)		(*(block->cmdoutcur) == '\n' || *(block->cmdoutcur) == '\0')
 
 typedef struct {
         char *pathu;
@@ -209,60 +208,72 @@ termhandler(int signum)
 int
 updatestatus()
 {
-        int i;
-        char *str = statusstr;
-        Block *current;
+        char *s = statusstr;
+        char *c, *p; /* for cmdoutcur and cmdoutprv */
+        const char *d; /* for delimiter */
+        Block *current = blocks;
 
-        for (current = blocks; current->pathu; current++) {
-                if (EMPTYCMDOUT(current)) {
-                        if (current->cmdoutprv[0] != current->cmdoutcur[0]) {
-                                current->cmdoutprv[0] = current->cmdoutcur[0];
-                                current++;
-                                goto update0;
-                        }
-                        continue;
+        /* checking half of the function */
+        /* skip empty blocks */
+        while (current->pathu && EMPTYCMDOUT(current)) {
+                if (*(current->cmdoutprv) != *(current->cmdoutcur)) {
+                        *(current->cmdoutprv) = *(current->cmdoutcur);
+                        current++;
+                        goto update0;
                 }
-                i = 0;
+                current++;
+        }
+        /* skip delimiter in front of the first non-empty block */
+        if (current->pathu)
+                goto skipdelimc;
+        else
+                return 0;
+        /* main loop */
+        for (; current->pathu; current++) {
+                s += delimlength;
+skipdelimc:
+                c = current->cmdoutcur; p = current->cmdoutprv;
                 do {
-                        if (current->cmdoutcur[i] == current->cmdoutprv[i]) {
-                                i++;
-                                continue;
-                        } else {
-                                str += i;
+                        if (*c != *p) {
+                                s += (c - current->cmdoutcur);
                                 goto update1;
                         }
-                } while (NOTATCMDOUTEND(current, i));
-                str += i;
+                        c++; p++;
+                } while (*c != '\n' && *c != '\0');
+                s += (c - current->cmdoutcur);
                 if (current->pathc && current->signal)
-                        str++;
-                if (*str == '\0')
-                        goto update2;
-                str += delimlength;
+                        s++;
         }
         return 0;
 update0:
+        /* updating half of the function */
+        /* skip empty blocks */
+        while (current->pathu && EMPTYCMDOUT(current)) {
+                *(current->cmdoutprv) = *(current->cmdoutcur);
+                current++;
+        }
+        /* skip delimiter in front of the first non-empty block */
+        if (current->pathu)
+                goto skipdelimu;
+        else
+                return 1;
+        /* main loop */
         for (; current->pathu; current++) {
-                if (EMPTYCMDOUT(current)) {
-                        current->cmdoutprv[0] = current->cmdoutcur[0];
-                        continue;
-                }
-                i = 0;
+                d = delim;
+                while (*d)
+                        *(s++) = *(d++);
+                *(s++) = '\n'; /* to mark the end of delimiter */
+skipdelimu:
+                c = current->cmdoutcur; p = current->cmdoutprv;
 update1:
                 do {
-                        *(str++) = current->cmdoutcur[i];
-                        current->cmdoutprv[i] = current->cmdoutcur[i];
-                        i++;
-                } while (NOTATCMDOUTEND(current, i));
+                        *(s++) = *c;
+                        *p = *c;
+                        p++; c++;
+                } while (*c != '\n' && *c != '\0');
                 if (current->pathc && current->signal)
-                        *(str++) = current->signal;
-update2:
-                for (i = 0; delim[i]; i++)
-                        *(str++) = delim[i];
-                *(str++) = '\n';
+                        *(s++) = current->signal;
         }
-        /* remove delimiter at the end if not all blocks are empty */
-        if (str != statusstr)
-                *(str - delimlength) = '\0';
         return 1;
 }
 
