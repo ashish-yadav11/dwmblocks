@@ -1,6 +1,6 @@
 diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 --- dwm-6.2-ori/config.def.h	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/config.def.h	2020-07-17 00:20:06.538669316 +0530
++++ dwm-6.2/config.def.h	2020-07-30 00:13:59.458409207 +0530
 @@ -12,10 +12,34 @@
  static const char col_gray3[]       = "#bbbbbb";
  static const char col_gray4[]       = "#eeeeee";
@@ -50,8 +50,8 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
---- dwm-6.2-ori/dwm.c	2020-06-15 20:11:02.220674229 +0530
-+++ dwm-6.2/dwm.c	2020-07-18 17:46:47.328340867 +0530
+--- dwm-6.2-ori/dwm.c	2019-02-02 18:25:28.000000000 +0530
++++ dwm-6.2/dwm.c	2020-07-30 00:22:43.991855443 +0530
 @@ -40,6 +40,8 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -159,7 +159,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        }
 +                        ctmp = *ts;
 +                        *ts = '\0';
-+                        if (*tp)
++                        if (*tp != '\0')
 +                                x = drw_text(drw, x, 0, TTEXTW(tp), bh, 0, tp, 0);
 +                        if (ctmp == '\0')
 +                                break;
@@ -286,7 +286,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +        char *tp = stexts;
 +        char ctmp;
 +
-+        while (*ts) {
++        while (*ts != '\0') {
 +                if ((unsigned char)*ts > 10) {
 +                        ts++;
 +                        continue;
@@ -307,7 +307,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -1987,9 +2103,28 @@
+@@ -1987,9 +2103,27 @@
  void
  updatestatus(void)
  {
@@ -317,19 +317,18 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +	char rawstext[256];
 +
 +	if (gettextprop(root, XA_WM_NAME, rawstext, sizeof rawstext)) {
-+                int i = -1, j = 0, k = 0, l = 0;
-+                char stextf[256];
++                char stextt[256];
++                char *stc = stextc, *sts = stexts, *stt = stextt;
 +
-+                while (rawstext[++i]) {
-+                        if ((unsigned char)rawstext[i] >= ' ')
-+                                stextf[j++] = stextc[k++] = stexts[l++] = rawstext[i];
-+                        else if ((unsigned char)rawstext[i] > 10)
-+                                stextc[k++] = rawstext[i];
++                for (char *rt = rawstext; *rt != '\0'; rt++)
++                        if ((unsigned char)*rt >= ' ')
++                                *(stc++) = *(sts++) = *(stt++) = *rt;
++                        else if ((unsigned char)*rt > 10)
++                                *(stc++) = *rt;
 +                        else
-+                                stexts[l++] = rawstext[i];
-+                }
-+                stextf[j] = stextc[k] = stexts[l] = '\0';
-+                wstext = TEXTW(stextf);
++                                *(sts++) = *rt;
++                *stc = *sts = *stt = '\0';
++                wstext = TEXTW(stextt);
 +        } else {
 +                strcpy(stextc, "dwm-"VERSION);
 +                strcpy(stexts, stextc);
