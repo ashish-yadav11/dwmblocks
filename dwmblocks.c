@@ -191,8 +191,8 @@ statusloop()
                 for (Block *current = blocks; current->pathu; current++)
                         if (current->interval > 0 && i % current->interval == 0)
                                 getcmd(current, NILL);
-                sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
                 setroot();
+                sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
                 sleep(SLEEPINTERVAL);
                 i += SLEEPINTERVAL;
         }
