@@ -13,7 +13,7 @@
 #define LOCKFILE			"/tmp/dwmblocks.pid"
 #define NILL				INT_MIN
 
-#define EMPTYCMDOUT(block)		(*(block->cmdoutcur) == '\n' || *(block->cmdoutcur) == '\0')
+#define EMPTYCMDOUT(block)		(*block->cmdoutcur == '\n' || *block->cmdoutcur == '\0')
 
 typedef struct {
         char *pathu;
@@ -216,8 +216,8 @@ updatestatus()
         /* checking half of the function */
         /* skip empty blocks */
         while (current->pathu && EMPTYCMDOUT(current)) {
-                if (*(current->cmdoutprv) != *(current->cmdoutcur)) {
-                        *(current->cmdoutprv) = *(current->cmdoutcur);
+                if (*current->cmdoutcur != *current->cmdoutprv) {
+                        *current->cmdoutprv = *current->cmdoutcur;
                         current++;
                         goto update0;
                 }
@@ -235,12 +235,12 @@ skipdelimc:
                 c = current->cmdoutcur; p = current->cmdoutprv;
                 do {
                         if (*c != *p) {
-                                s += (c - current->cmdoutcur);
+                                s += c - current->cmdoutcur;
                                 goto update1;
                         }
                         c++; p++;
                 } while (*c != '\n' && *c != '\0');
-                s += (c - current->cmdoutcur);
+                s += c - current->cmdoutcur;
                 if (current->pathc && current->signal)
                         s++;
         }
@@ -249,7 +249,7 @@ update0:
         /* updating half of the function */
         /* skip empty blocks */
         while (current->pathu && EMPTYCMDOUT(current)) {
-                *(current->cmdoutprv) = *(current->cmdoutcur);
+                *current->cmdoutprv = *current->cmdoutcur;
                 current++;
         }
         /* skip delimiter in front of the first non-empty block */
@@ -269,7 +269,7 @@ update1:
                 do {
                         *(s++) = *c;
                         *p = *c;
-                        p++; c++;
+                        c++; p++;
                 } while (*c != '\n' && *c != '\0');
                 if (current->pathc && current->signal)
                         *(s++) = current->signal;
