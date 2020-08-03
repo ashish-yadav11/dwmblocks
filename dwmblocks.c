@@ -274,6 +274,7 @@ update1:
                 if (current->pathc && current->signal)
                         *(s++) = current->signal;
         }
+        *s = '\0';
         return 1;
 }
 
