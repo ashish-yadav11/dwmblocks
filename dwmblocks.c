@@ -274,7 +274,7 @@ update1:
                 /* handles delimiter */
                 if (*current->cmdoutcur != '\n' && *current->cmdoutcur != '\0') {
                         d = delim;
-                        while (*d)
+                        while (*d != '\0')
                                 *(s++) = *(d++);
                         *(s++) = '\n'; /* to mark the end of delimiter */
                 } else {
