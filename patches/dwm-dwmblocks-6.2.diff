@@ -1,6 +1,6 @@
 diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 --- dwm-6.2-ori/config.def.h	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/config.def.h	2020-07-30 00:13:59.458409207 +0530
++++ dwm-6.2/config.def.h	2020-08-18 03:43:45.933763395 +0530
 @@ -12,10 +12,34 @@
  static const char col_gray3[]       = "#bbbbbb";
  static const char col_gray4[]       = "#eeeeee";
@@ -22,7 +22,6 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 -	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
 -	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 +	[SchemeNorm]  = { col_gray3, col_gray1, col_gray2 },
-+	[SchemeSel]   = { col_gray4, col_cyan,  col_cyan  },
 +	[SchemeCol1]  = { col1,      col_gray1, col_gray2 },
 +	[SchemeCol2]  = { col2,      col_gray1, col_gray2 },
 +	[SchemeCol3]  = { col3,      col_gray1, col_gray2 },
@@ -35,6 +34,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 +	[SchemeCol10] = { col10,     col_gray1, col_gray2 },
 +	[SchemeCol11] = { col11,     col_gray1, col_gray2 },
 +	[SchemeCol12] = { col12,     col_gray1, col_gray2 },
++	[SchemeSel]   = { col_gray4, col_cyan,  col_cyan  },
  };
  
  /* tagging */
@@ -51,7 +51,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/dwm.c	2020-07-30 00:22:43.991855443 +0530
++++ dwm-6.2/dwm.c	2020-08-18 03:36:01.675447530 +0530
 @@ -40,6 +40,8 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -73,9 +73,9 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 -enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 -enum { SchemeNorm, SchemeSel }; /* color schemes */
 +enum { CurNormal, CurHand, CurResize, CurMove, CurLast }; /* cursor */
-+enum { SchemeNorm, SchemeSel, SchemeCol1, SchemeCol2, SchemeCol3,
-+       SchemeCol4, SchemeCol5, SchemeCol6, SchemeCol7, SchemeCol8,
-+       SchemeCol9, SchemeCol10, SchemeCol11, SchemeCol12 }; /* color schemes */
++enum { SchemeNorm, SchemeCol1, SchemeCol2, SchemeCol3, SchemeCol4,
++       SchemeCol5, SchemeCol6, SchemeCol7, SchemeCol8, SchemeCol9,
++       SchemeCol10, SchemeCol11, SchemeCol12, SchemeSel }; /* color schemes */
  enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
         NetWMFullscreen, NetActiveWindow, NetWMWindowType,
         NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
@@ -107,7 +107,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +static char stextc[256];
 +static char stexts[256];
 +static int wstext;
-+static int dwmblockssig;
++static unsigned int dwmblockssig;
  static int screen;
  static int sw, sh;           /* X display screen geometry width, height */
  static int bh, blw = 0;      /* bar geometry */
@@ -164,7 +164,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        if (ctmp == '\0')
 +                                break;
 +                        /* - 11 to compensate for + 10 above */
-+                        drw_setscheme(drw, scheme[(unsigned char)ctmp - 11]);
++                        drw_setscheme(drw, scheme[ctmp - 11]);
 +                        *ts = ctmp;
 +                        tp = ++ts;
 +                }
@@ -213,7 +213,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +        struct flock fl;
 +	union sigval sv;
 +
-+        if (dwmblockssig <= 0 || dwmblockssig >= 10)
++        if (!dwmblockssig)
 +                return;
 +	sv.sival_int = (dwmblockssig << 8) | arg->i;
 +        fd = open(DWMBLOCKSLOCKFILE, O_RDONLY);
@@ -250,15 +250,15 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +        static int currentcursor = 0;
 +        int x;
 +
-+        if (BETWEEN(cursorpos, (x = selmon->ww - wstext + lrpad / 2), x + wstext - lrpad)) {
++        if (cursorpos < selmon->ww - lrpad / 2 && cursorpos >= (x = selmon->ww - wstext + lrpad / 2)) {
 +                updatedwmblockssig(x, cursorpos);
 +                if (currentcursor) {
-+                        if (dwmblockssig <= 0 || dwmblockssig >= 10) {
++                        if (!dwmblockssig) {
 +                                currentcursor = 0;
 +                                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
 +                        }
 +                } else {
-+                        if (dwmblockssig > 0 && dwmblockssig < 10) {
++                        if (dwmblockssig) {
 +                                currentcursor = 1;
 +                                XDefineCursor(dpy, selmon->barwin, cursor[CurHand]->cursor);
 +                        }
@@ -275,7 +275,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  updatebarpos(Monitor *m)
  {
  	m->wy = m->my;
-@@ -1847,6 +1938,31 @@
+@@ -1847,6 +1938,34 @@
  				(unsigned char *) &(c->win), 1);
  }
  
@@ -296,7 +296,10 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                x += TTEXTW(tp);
 +                *ts = ctmp;
 +                if (x >= e) {
-+                        dwmblockssig = (unsigned char)ctmp;
++                        if (ctmp != 10)
++                                dwmblockssig = ctmp;
++                        else
++                                dwmblockssig = 0;
 +                        return;
 +                }
 +                tp = ++ts;
@@ -307,7 +310,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -1987,9 +2103,27 @@
+@@ -1987,9 +2106,27 @@
  void
  updatestatus(void)
  {
