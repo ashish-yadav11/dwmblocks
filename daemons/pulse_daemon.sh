@@ -1,5 +1,5 @@
 #!/bin/sh
 pactl subscribe |
     while read -r output ; do
-        [ -z "${output##*sink *}" ] && sigdsblocks 1
+        [ -z "${output##*sink *}" ] && sigdwmblocks 1
     done
