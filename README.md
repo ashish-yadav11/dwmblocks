@@ -14,9 +14,11 @@ info.
 
 # Colored output and Clickability
 
-The patches folder contains a patch for dwm which is required for dwmblocks to
-function properly. It adds support for colored text, clickability and cursor
-hinting when hovering on text output of clickable blocks (inspired by polybar).
+The patches folder contains two patches for dwm, one for dwm already patched
+with systray patch and the other for dwm without systray. One of the patches,
+whichever appropriate, is essential for dwmblocks to function properly. It will
+add support for colored text, clickability and cursor hinting when hovering on
+clickable blocks (inspired by polybar).
 
 Clickability is inspired by the statuscmd patch for dwm. On clicking on text
 corresponding to a clickable block, the program specified to handle clicks for
