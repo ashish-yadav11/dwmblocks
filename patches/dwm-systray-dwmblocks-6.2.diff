@@ -51,7 +51,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-08-17 23:51:19.057243495 +0530
-+++ dwm-6.2/dwm.c	2020-08-18 03:20:40.708947237 +0530
++++ dwm-6.2/dwm.c	2020-08-21 23:45:04.927946432 +0530
 @@ -40,6 +40,8 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -65,7 +65,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
  #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
  #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
-+#define TTEXTW(X)               drw_fontset_getwidth(drw, (X))
++#define TTEXTW(X)               (drw_fontset_getwidth(drw, (X)))
 +
 +#define DWMBLOCKSLOCKFILE       "/tmp/dwmblocks.pid"
  
