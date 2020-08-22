@@ -1,20 +1,23 @@
-#PREFIX = /usr/local
-PREFIX = ${HOME}/.local
+#PREFIX := /usr/local
+PREFIX := ${HOME}/.local
 
-CC = gcc
-CFLAGS = -O3 -Wall -Wextra
-CFLAGSEXTRA = -Wno-missing-field-initializers -Wno-unused-parameter
+CC := gcc
+CFLAGS := -O3 -Wall -Wextra
+CFLAGSEXTRA := -Wno-missing-field-initializers -Wno-unused-parameter
+
+X11CFLAGS := $(shell pkg-config --cflags x11)
+X11LIBS := $(shell pkg-config --libs x11)
 
 all: dwmblocks sigdwmblocks
 
 dwmblocks: dwmblocks.c blocks.h
-	${CC} -o $@ ${CFLAGS} ${CFLAGSEXTRA} `pkg-config --cflags x11` $< `pkg-config --libs x11`
+	${CC} -o $@ ${CFLAGS} ${CFLAGSEXTRA} ${X11CFLAGS} $< ${X11LIBS}
 
 sigdwmblocks: sigdwmblocks.c
 	${CC} -o $@ ${CFLAGS} $<
 
 xgetrootname: xgetrootname.c
-	${CC} -o $@ ${CFLAGS} `pkg-config --cflags x11` $< `pkg-config --libs x11`
+	${CC} -o $@ ${CFLAGS} ${X11CFLAGS} $< ${X11LIBS}
 
 clean:
 	rm -f dwmblocks sigdwmblocks
