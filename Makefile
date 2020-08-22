@@ -8,13 +8,13 @@ CFLAGSEXTRA = -Wno-missing-field-initializers -Wno-unused-parameter
 all: dwmblocks sigdwmblocks
 
 dwmblocks: dwmblocks.c blocks.h
-	${CC} -o $@ -lX11 ${CFLAGS} ${CFLAGSEXTRA} $<
+	${CC} -o $@ ${CFLAGS} ${CFLAGSEXTRA} `pkg-config --cflags x11` $< `pkg-config --libs x11`
 
 sigdwmblocks: sigdwmblocks.c
 	${CC} -o $@ ${CFLAGS} $<
 
 xgetrootname: xgetrootname.c
-	${CC} -o $@ -lX11 ${CFLAGS} $<
+	${CC} -o $@ ${CFLAGS} `pkg-config --cflags x11` $< `pkg-config -libs x11`
 
 clean:
 	rm -f dwmblocks sigdwmblocks
