@@ -14,7 +14,7 @@ sigdwmblocks: sigdwmblocks.c
 	${CC} -o $@ ${CFLAGS} $<
 
 xgetrootname: xgetrootname.c
-	${CC} -o $@ ${CFLAGS} `pkg-config --cflags x11` $< `pkg-config -libs x11`
+	${CC} -o $@ ${CFLAGS} `pkg-config --cflags x11` $< `pkg-config --libs x11`
 
 clean:
 	rm -f dwmblocks sigdwmblocks
