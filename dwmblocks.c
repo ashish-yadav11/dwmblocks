@@ -81,11 +81,13 @@ getcmd(Block *block, int sigval)
                 case 0:
                         close(ConnectionNumber(dpy));
                         close(fd[0]);
-                        if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
-                                perror("getcmd - child - dup2");
-                                exit(1);
+                        if (fd[1] != STDOUT_FILENO) {
+                                if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
+                                        perror("getcmd - child - dup2");
+                                        exit(1);
+                                }
+                                close(fd[1]);
                         }
-                        close(fd[1]);
                         if (sigval == NILL) {
                                 char *arg[] = { block->pathu, NULL };
 
