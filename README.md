@@ -9,8 +9,8 @@ signaling, clickability, cursor hinting and color.
 
 # Modifying blocks
 
-Blocks are added and removed by editing the [blocks.h](blocks.h). Read it for
-more info.
+Blocks are added and removed by editing the [blocks.h](blocks.h) file. Read it
+for more info.
 
 # Colored output and Clickability
 
