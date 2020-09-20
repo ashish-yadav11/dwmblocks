@@ -215,7 +215,7 @@ updatestatus()
 
         /* checking half of the function */
         /* skip empty blocks */
-        for (;;) {
+        for (;; current++) {
                 if (!current->pathu)
                         return 0;
                 /* skip delimiter for the first non-empty block */
@@ -226,7 +226,6 @@ updatestatus()
                         current++;
                         goto update0;
                 }
-                current++;
         }
         /* main loop */
         for (; current->pathu; current++) {
@@ -261,14 +260,13 @@ skipdelimc:
 update0:
         /* updating half of the function */
         /* skip empty blocks */
-        for (;;) {
+        for (;; current++) {
                 if (!current->pathu)
                         return 1;
                 /* skip delimiter for the first non-empty block */
                 if (*current->cmdoutcur != '\n' && *current->cmdoutcur != '\0')
                         goto skipdelimu;
                 *current->cmdoutprv = *current->cmdoutcur;
-                current++;
         }
 update1:
         /* main loop */
