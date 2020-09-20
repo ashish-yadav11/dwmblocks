@@ -214,7 +214,7 @@ updatestatus()
         Block *current = blocks;
 
         /* checking half of the function */
-        /* find first non-empty block */
+        /* find the first non-empty block */
         for (;; current++) {
                 /* all blocks are empty */
                 if (!current->pathu)
@@ -255,7 +255,7 @@ skipdelimc:
         return 0;
 
         /* updating half of the function */
-        /* find first non-empty block */
+        /* find the first non-empty block */
         for (;; current++) {
                 /* all blocks are empty */
                 if (!current->pathu)
