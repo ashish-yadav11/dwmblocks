@@ -214,69 +214,69 @@ updatestatus()
         Block *current = blocks;
 
         /* checking half of the function */
-        /* skip empty blocks */
+        /* find first non-empty block */
         for (;; current++) {
+                /* all blocks are empty */
                 if (!current->pathu)
                         return 0;
-                /* skip delimiter for the first non-empty block */
+                /* contents of the current block just changed */
+                if (*current->cmdoutcur != *current->cmdoutprv)
+                        goto update0;
+                /* no delimiter before the first non-empty block */
                 if (*current->cmdoutcur != '\n' && *current->cmdoutcur != '\0')
                         goto skipdelimc;
-                if (*current->cmdoutcur != *current->cmdoutprv) {
-                        *current->cmdoutprv = *current->cmdoutcur;
-                        current++;
-                        goto update0;
-                }
         }
         /* main loop */
         for (; current->pathu; current++) {
-                /* handles delimiter */
+                /* contents of the current block just changed */
+                if (*current->cmdoutcur != *current->cmdoutprv)
+                        goto update1;
+                /* delimiter handler */
+                /* current block is non-empty */
                 if (*current->cmdoutcur != '\n' && *current->cmdoutcur != '\0')
                         s += delimlength;
-                else {
-                        if (*current->cmdoutcur != *current->cmdoutprv) {
-                                *current->cmdoutprv = *current->cmdoutcur;
-                                current++;
-                                goto update1;
-                        }
+                /* skip over empty blocks */
+                else
                         continue;
-                }
 skipdelimc:
-                c = current->cmdoutcur; p = current->cmdoutprv;
-                if (*c != *p)
-                        goto update2;
-                else {
-                        c++; p++;
-                }
+                /* checking for the first byte has been done */
+                c = current->cmdoutcur + 1; p = current->cmdoutprv + 1;
                 for (; *c != '\n' && *c != '\0'; c++, p++)
+                        /* contents of the current block just changed */
                         if (*c != *p) {
                                 s += c - current->cmdoutcur;
                                 goto update2;
                         }
                 s += c - current->cmdoutcur;
+                /* byte containing info about signal number for the block */
                 if (current->pathc && current->signal)
                         s++;
         }
         return 0;
-update0:
+
         /* updating half of the function */
-        /* skip empty blocks */
+        /* find first non-empty block */
         for (;; current++) {
+                /* all blocks are empty */
                 if (!current->pathu)
                         return 1;
-                /* skip delimiter for the first non-empty block */
+update0:
+                /* skip delimiter before the first non-empty block */
                 if (*current->cmdoutcur != '\n' && *current->cmdoutcur != '\0')
                         goto skipdelimu;
                 *current->cmdoutprv = *current->cmdoutcur;
         }
-update1:
         /* main loop */
         for (; current->pathu; current++) {
-                /* handles delimiter */
+update1:
+                /* delimiter handler */
+                /* current block is non-empty */
                 if (*current->cmdoutcur != '\n' && *current->cmdoutcur != '\0') {
                         d = delim;
                         while (*d != '\0')
                                 *(s++) = *(d++);
                         *(s++) = '\n'; /* to mark the end of delimiter */
+                /* skip over empty blocks */
                 } else {
                         *current->cmdoutprv = *current->cmdoutcur;
                         continue;
