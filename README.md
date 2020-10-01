@@ -46,9 +46,13 @@ debugging.
 
 # Installation
 
-Clone the repository and run `make clean install` after getting in the project
-directory. By default the program is installed in `$HOME/.local/bin`. If
-xgetrootname is required run `make xgetrootname`.
+1) Clone the repository
+2) Go to project directory `cd dwmblocks`
+3) Run `sudo make clean install`
+
+By default the program is installed in `$HOME/.local/bin` location.
+
+If xgetrootname is required, run `make xgetrootname`.
 
 # Acknowledgements
 
