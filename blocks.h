@@ -11,6 +11,7 @@
  * If multiple signals are pending, then the lowest numbered one will be delivered first. */
 
 /* pathu - path of the program whose output is to be used for status text
+ *         output of the program should have a null or newline character at the end
  * pathc - path of the program to be executed on clicks */
 static Block blocks[] = {
 /*      pathu                           pathc                                   interval        signal */
