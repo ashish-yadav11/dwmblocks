@@ -44,25 +44,24 @@ void
 buttonhandler(int signal, siginfo_t *si, void *ucontext)
 {
         signal = si->si_value.sival_int >> 8;
-        switch (fork()) {
-                case -1:
-                        perror("buttonhandler - fork");
-                        exit(1);
-                case 0:
-                        close(ConnectionNumber(dpy));
-                        for (Block *current = blocks; current->pathu; current++) {
-                                if (current->signal == signal) {
+        for (Block *current = blocks; current->pathu; current++)
+                if (current->signal == signal)
+                        switch (fork()) {
+                                case -1:
+                                        perror("buttonhandler - fork");
+                                        break;
+                                case 0:
+                                {
                                         char button[] = { '0' + (si->si_value.sival_int & 0xff), '\0' };
                                         char *arg[] = { current->pathc, button, NULL };
 
+                                        close(ConnectionNumber(dpy));
                                         setsid();
                                         execv(arg[0], arg);
                                         perror("buttonhandler - child - execv");
                                         _exit(127);
                                 }
                         }
-                        exit(0);
-        }
 }
 
 void
