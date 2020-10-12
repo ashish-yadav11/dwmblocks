@@ -21,7 +21,7 @@ sendsignal(int signum, union sigval sv)
                         fputs("Error: no running instance of dwmblocks.\n", stderr);
                         exit(2);
                 }
-                perror("sendsignal - fd");
+                perror("sendsignal - open");
                 exit(1);
         }
         fl.l_type = F_WRLCK;
@@ -70,7 +70,6 @@ main(int argc, char *argv[])
                         }
                 }
         }
-
         fprintf(stderr, "Usage: %s <signal> [<sigval>]\n", argv[0]);
         return 3;
 }
