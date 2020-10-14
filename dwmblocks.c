@@ -303,7 +303,7 @@ writepid()
 
         fd = open(LOCKFILE, O_RDWR|O_CREAT, 0644);
         if (fd == -1) {
-                perror("writepid - fd");
+                perror("writepid - open");
                 exit(1);
         }
         fl.l_type = F_WRLCK;
