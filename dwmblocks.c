@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
 
-#define CMDLENGTH                       25
+#define CMDLENGTH                       50
 #define STTLENGTH                       256
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
