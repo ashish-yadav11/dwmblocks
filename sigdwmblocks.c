@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
 void
@@ -60,7 +61,7 @@ main(int argc, char *argv[])
                 if (sscanf(argv[1], "%d", &signal) == 1 &&
                     signal > 0 && (signal += SIGRTMIN) <= SIGRTMAX) {
                         if (argc == 2) {
-                                sv.sival_int = INT_MIN;
+                                sv.sival_int = NILL;
                                 sendsignal(signal, sv);
                                 return 0;
                         } else if (argc == 3 &&
