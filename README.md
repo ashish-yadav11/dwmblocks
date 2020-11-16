@@ -9,27 +9,29 @@ signaling, clickability, cursor hinting and color.
 
 # Modifying blocks
 
-Blocks are added and removed by editing the [blocks.h](blocks.h) file. Read it
-for more info.
+Blocks are added and removed by editing [blocks.h](blocks.h) file. Read it for
+more info.
+
+> The provided blocks use siji font for icons.
 
 # Colored output and Clickability
 
-The patches folder contains two patches for dwm, one for dwm already patched
-with systray patch and the other for dwm without systray. One of the patches,
+[patches](patches) folder includes two patches for dwm, one for dwm already
+patched with systray patch and the other for vanilla dwm. One of the patches,
 whichever appropriate, is essential for dwmblocks to function properly. It will
 add support for colored text, clickability and cursor hinting when hovering on
 clickable blocks (inspired by polybar).
 
-Clickability is inspired by the statuscmd patch for dwm. On clicking on text
+Clickability is inspired by statuscmd patch for dwm. On clicking on text
 corresponding to a clickable block, the program specified to handle clicks for
 that block is executed with the first argument specifying which button was
-clicked (1 for left, 2 for middle and 3 for right by default).
+clicked (1 for left, 2 for middle and 3 for right).
 
-Colored output is inspired by the statuscolors patch for dwm. To add colors,
-have your programs for the blocks output raw characters from '\x0b' to '\x31'.
-'\x0b' in status text switches the active colorscheme to the first one in the
-scheme array in dwm and so on. See
-[statuscolors patch](https://dwm.suckless.org/patches/statuscolors/)
+Colored output is inspired by statuscolors patch for dwm. To add colors, have
+your programs for the blocks output raw characters from '\x0b' to '\x31'. '\x0b'
+in status text switches active colorscheme to the first one in the colors array
+in dwm and so on. See
+[statuscolors patch for dwm](https://dwm.suckless.org/patches/statuscolors/)
 for more info. Keep in mind that you have to start from '\x0b' instead of '\x01'
 as instructed on the page.
 
