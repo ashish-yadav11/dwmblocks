@@ -1,2 +1,3 @@
 #!/bin/sh
-echo "$(date '+%a, %d %b')"
+ICON=""
+echo "${ICON}$(date '+%a, %d %b')"
