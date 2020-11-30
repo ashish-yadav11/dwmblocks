@@ -16,7 +16,7 @@ more info.
 
 # Colored output and Clickability
 
-[patches](patches) folder includes two patches for dwm, one for dwm already
+[patches](patches) folder contains two patches for dwm, one for dwm already
 patched with systray patch and the other for vanilla dwm. One of the patches,
 whichever appropriate, is essential for dwmblocks to function properly. It will
 add support for colored text, clickability and cursor hinting when hovering on
