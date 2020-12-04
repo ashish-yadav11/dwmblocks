@@ -17,8 +17,8 @@
 #define LENGTH(X)                       (sizeof X / sizeof X[0])
 
 typedef struct {
-        char *pathu;
-        char *pathc;
+        char *const pathu;
+        char *const pathc;
         const int interval;
         const int signal;
         char cmdoutcur[CMDLENGTH];
