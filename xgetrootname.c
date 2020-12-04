@@ -12,7 +12,7 @@ main()
                 return 1;
         }
         if (XFetchName(dpy, DefaultRootWindow(dpy), &name) && name[0])
-                printf("%s\n", name);
+                puts(name);
         else
                 fputs("No name has been set for the root window.\n", stderr);
         XFree(name);
