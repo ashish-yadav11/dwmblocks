@@ -51,7 +51,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/dwm.c	2020-11-08 21:10:42.044043367 +0530
++++ dwm-6.2/dwm.c	2020-12-05 03:57:52.643158573 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -60,12 +60,13 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  
  #include "drw.h"
  #include "util.h"
-@@ -56,10 +57,15 @@
+@@ -56,10 +57,16 @@
  #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
  #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
  #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 +#define TTEXTW(X)               (drw_fontset_getwidth(drw, (X)))
 +
++#define STATUSLENGTH            256
 +#define DWMBLOCKSLOCKFILE       "/tmp/dwmblocks.pid"
  
  /* enums */
@@ -78,7 +79,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
         NetWMFullscreen, NetActiveWindow, NetWMWindowType,
         NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
-@@ -205,6 +211,7 @@
+@@ -205,6 +212,7 @@
  static void seturgent(Client *c, int urg);
  static void showhide(Client *c);
  static void sigchld(int unused);
@@ -86,7 +87,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static void spawn(const Arg *arg);
  static void tag(const Arg *arg);
  static void tagmon(const Arg *arg);
-@@ -219,6 +226,7 @@
+@@ -219,6 +227,7 @@
  static void updatebarpos(Monitor *m);
  static void updatebars(void);
  static void updateclientlist(void);
@@ -94,13 +95,13 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static int updategeom(void);
  static void updatenumlockmask(void);
  static void updatesizehints(Client *c);
-@@ -236,12 +244,16 @@
+@@ -236,12 +245,16 @@
  
  /* variables */
  static const char broken[] = "broken";
 -static char stext[256];
-+static char stextc[256];
-+static char stexts[256];
++static char stextc[STATUSLENGTH];
++static char stexts[STATUSLENGTH];
  static int screen;
  static int sw, sh;           /* X display screen geometry width, height */
 -static int bh, blw = 0;      /* bar geometry */
@@ -113,7 +114,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static unsigned int numlockmask = 0;
  static void (*handler[LASTEvent]) (XEvent *) = {
  	[ButtonPress] = buttonpress,
-@@ -416,13 +428,13 @@
+@@ -416,13 +429,13 @@
  void
  buttonpress(XEvent *e)
  {
@@ -129,7 +130,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	/* focus monitor if necessary */
  	if ((m = wintomon(ev->window)) && m != selmon) {
  		unfocus(selmon->sel, 1);
-@@ -430,25 +442,30 @@
+@@ -430,25 +443,30 @@
  		focus(NULL);
  	}
  	if (ev->window == selmon->barwin) {
@@ -174,7 +175,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	for (i = 0; i < LENGTH(buttons); i++)
  		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
  		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
-@@ -695,7 +712,7 @@
+@@ -695,7 +713,7 @@
  void
  drawbar(Monitor *m)
  {
@@ -183,7 +184,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	int boxs = drw->fonts->h / 9;
  	int boxw = drw->fonts->h / 6 + 2;
  	unsigned int i, occ = 0, urg = 0;
-@@ -703,9 +720,30 @@
+@@ -703,9 +721,30 @@
  
  	/* draw status first so it can be overdrawn by tags later */
  	if (m == selmon) { /* status is only drawn on selected monitor */
@@ -217,7 +218,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	}
  
  	for (c = m->clients; c; c = c->next) {
-@@ -724,11 +762,17 @@
+@@ -724,11 +763,17 @@
  				urg & 1 << i);
  		x += w;
  	}
@@ -237,7 +238,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  		if (m->sel) {
  			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-@@ -1122,14 +1166,24 @@
+@@ -1122,14 +1167,24 @@
  	Monitor *m;
  	XMotionEvent *ev = &e->xmotion;
  
@@ -270,7 +271,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  }
  
  void
-@@ -1564,6 +1618,7 @@
+@@ -1564,6 +1619,7 @@
  	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
  	/* init cursors */
  	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -278,7 +279,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
-@@ -1637,6 +1692,28 @@
+@@ -1637,6 +1693,28 @@
  }
  
  void
@@ -307,7 +308,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  spawn(const Arg *arg)
  {
  	if (arg->v == dmenucmd)
-@@ -1805,7 +1882,7 @@
+@@ -1805,7 +1883,7 @@
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
  		.background_pixmap = ParentRelative,
@@ -316,7 +317,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	};
  	XClassHint ch = {"dwm", "dwm"};
  	for (m = mons; m; m = m->next) {
-@@ -1847,6 +1924,42 @@
+@@ -1847,6 +1925,42 @@
  				(unsigned char *) &(c->win), 1);
  }
  
@@ -359,28 +360,28 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -1987,9 +2100,27 @@
+@@ -1987,9 +2101,27 @@
  void
  updatestatus(void)
  {
 -	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
 -		strcpy(stext, "dwm-"VERSION);
 -	drawbar(selmon);
-+	char rawstext[256];
++	char rawstext[STATUSLENGTH];
 +
 +	if (gettextprop(root, XA_WM_NAME, rawstext, sizeof rawstext)) {
-+                char stextt[256];
-+                char *stc = stextc, *sts = stexts, *stt = stextt;
++                char stextp[STATUSLENGTH];
++                char *stp = stextp, *stc = stextc, *sts = stexts;
 +
-+                for (char *rt = rawstext; *rt != '\0'; rt++)
-+                        if ((unsigned char)*rt >= ' ')
-+                                *(stc++) = *(sts++) = *(stt++) = *rt;
-+                        else if ((unsigned char)*rt > 10)
-+                                *(stc++) = *rt;
++                for (char *rst = rawstext; *rst != '\0'; rst++)
++                        if ((unsigned char)*rst >= ' ')
++                                *(stp++) = *(stc++) = *(sts++) = *rst;
++                        else if ((unsigned char)*rst > 10)
++                                *(stc++) = *rst;
 +                        else
-+                                *(sts++) = *rt;
-+                *stc = *sts = *stt = '\0';
-+                wstext = TEXTW(stextt);
++                                *(sts++) = *rst;
++                *stp = *stc = *sts = '\0';
++                wstext = TEXTW(stextp);
 +        } else {
 +                strcpy(stextc, "dwm-"VERSION);
 +                strcpy(stexts, stextc);
