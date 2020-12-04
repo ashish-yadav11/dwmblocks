@@ -1,6 +1,3 @@
-/* time interval in seconds to sleep before looking for updates in the main loop */
-#define SLEEPINTERVAL                   1
-
 #define PATH(name)                      "/home/ashish/.local/projects/dwmblocks/blocks/"name
 
 /* If interval of a block is set to 0, the block will only be updated once at startup.
@@ -13,6 +10,11 @@
 /* pathu - path of the program whose output is to be used for status text
  *         output of the program should have a null or newline character at the end
  * pathc - path of the program to be executed on clicks */
+
+/* 1 interval = INTERVALs seconds, INTERVALn nanoseconds */
+#define INTERVALs                       1
+#define INTERVALn                       0
+
 static Block blocks[] = {
 /*      pathu                           pathc                                   interval        signal */
         { PATH("time.sh"),              NULL,                                   30,             10},
