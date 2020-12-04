@@ -14,6 +14,8 @@
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
+#define LENGTH(X)                       (sizeof X / sizeof X[0])
+
 typedef struct {
         char *pathu;
         char *pathc;
@@ -37,6 +39,7 @@ static int updatestatus();
 static void writepid();
 
 static char statustext[STTLENGTH];
+static char *delim;
 static size_t delimlength;
 static Display *dpy;
 static sigset_t blocksigmask;
@@ -352,10 +355,13 @@ int
 main(int argc, char *argv[])
 {
         writepid();
-        if (argc > 2)
-                if (strcmp(argv[1], "-d") == 0)
-                        delim = argv[2];
-        delimlength = strlen(delim) + 1;
+        if (argc == 3 && strcmp(argv[1], "-d") == 0) {
+                delim = argv[2];
+                delimlength = strlen(delim) + 1;
+        } else {
+                delim = DELIMITER;
+                delimlength = LENGTH(DELIMITER);
+        }
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
                 return 1;
