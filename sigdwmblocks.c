@@ -20,7 +20,7 @@ sendsignal(int signum, union sigval sv)
         if (fd == -1) {
                 if (errno == ENOENT) {
                         fputs("Error: no running instance of dwmblocks.\n", stderr);
-                        exit(2);
+                        exit(3);
                 }
                 perror("sendsignal - open");
                 exit(1);
@@ -35,15 +35,15 @@ sendsignal(int signum, union sigval sv)
         }
         if (fl.l_type == F_UNLCK) {
                 fputs("Error: no running instance of dwmblocks.\n", stderr);
-                exit(2);
+                exit(3);
         }
         if (sigqueue(fl.l_pid, signum, sv) == -1) {
                 if (errno == EINVAL) {
                         fputs("Error: invalid signal provided in argument.\n", stderr);
-                        exit(3);
+                        exit(2);
                 } else if (errno == ESRCH) {
                         fputs("Error: no running instance of dwmblocks.\n", stderr);
-                        exit(2);
+                        exit(3);
                 } else {
                         perror("sendsignal - sigqueue");
                         exit(1);
@@ -72,5 +72,5 @@ main(int argc, char *argv[])
                 }
         }
         fprintf(stderr, "Usage: %s <signal> [<sigval>]\n", argv[0]);
-        return 3;
+        return 2;
 }
