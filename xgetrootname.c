@@ -4,8 +4,8 @@
 int
 main()
 {
-        Display *dpy;
         char *name;
+        Display *dpy;
 
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
@@ -14,7 +14,7 @@ main()
         if (XFetchName(dpy, DefaultRootWindow(dpy), &name) && name[0])
                 printf("%s\n", name);
         else
-                puts("No name has been set for the root window.");
+                fputs("No name has been set for the root window.\n", stderr);
         XFree(name);
         XCloseDisplay(dpy);
         return 0;
