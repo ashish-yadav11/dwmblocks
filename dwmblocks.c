@@ -14,8 +14,6 @@
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
-#define LENGTH(X)                       (sizeof X / sizeof X[0])
-
 typedef struct {
         char *const pathu;
         char *const pathc;
@@ -360,7 +358,7 @@ main(int argc, char *argv[])
                 delimlength = strlen(delim) + 1;
         } else {
                 delim = DELIMITER;
-                delimlength = LENGTH(DELIMITER);
+                delimlength = sizeof DELIMITER;
         }
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
