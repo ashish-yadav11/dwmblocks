@@ -27,14 +27,14 @@ typedef struct {
 
 #include "blocks.h"
 
-static void buttonhandler(int signal, siginfo_t *si, void *ucontext);
+static void buttonhandler(int sig, siginfo_t *info, void *ucontext);
 static void cleanup();
 static void getcmd(Block *block, int sigval);
 static void setroot();
 static void setupsignals();
-static void sighandler(int signal, siginfo_t *si, void *ucontext);
+static void sighandler(int sig, siginfo_t *si, void *ucontext);
 static void statusloop();
-static void termhandler(int signum);
+static void termhandler(int sig);
 static int updatestatus();
 static void writepid();
 
@@ -45,18 +45,18 @@ static Display *dpy;
 static sigset_t blocksigmask;
 
 void
-buttonhandler(int signal, siginfo_t *si, void *ucontext)
+buttonhandler(int sig, siginfo_t *info, void *ucontext)
 {
-        signal = si->si_value.sival_int >> 8;
+        sig = info->si_value.sival_int >> 8;
         for (Block *block = blocks; block->pathu; block++)
-                if (block->signal == signal)
+                if (block->signal == sig)
                         switch (fork()) {
                                 case -1:
                                         perror("buttonhandler - fork");
                                         break;
                                 case 0:
                                 {
-                                        char button[] = { '0' + (si->si_value.sival_int & 0xff), '\0' };
+                                        char button[] = { '0' + (info->si_value.sival_int & 0xff), '\0' };
                                         char *arg[] = { block->pathc, button, NULL };
 
                                         close(ConnectionNumber(dpy));
@@ -183,12 +183,12 @@ setupsignals()
 }
 
 void
-sighandler(int signal, siginfo_t *si, void *ucontext)
+sighandler(int sig, siginfo_t *info, void *ucontext)
 {
-        signal -= SIGRTMIN;
+        sig -= SIGRTMIN;
         for (Block *block = blocks; block->pathu; block++)
-                if (block->signal == signal)
-                        getcmd(block, si->si_value.sival_int);
+                if (block->signal == sig)
+                        getcmd(block, info->si_value.sival_int);
         setroot();
 }
 
@@ -222,7 +222,7 @@ statusloop()
 }
 
 void
-termhandler(int signum)
+termhandler(int sig)
 {
         cleanup();
         exit(0);
