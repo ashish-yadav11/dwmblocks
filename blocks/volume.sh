@@ -5,27 +5,36 @@ ICONsm="" # headphone unplugged, muted
 ICONsn="" # headphone unplugged, not muted
 
 pacmd list-sinks |
-    awk -v iconhm="$ICONhm" -v iconhn="$ICONhn" -v iconsm="$ICONsm" -v iconsn="$ICONsn" '
-        /\* index: /,0 {
-            if ($1 == "index:") {
-                exit
-            } else if ($1 == "muted:" && $2 == "yes") {
-                muted = 1
-            } else if ($1 == "volume:") {
-                volumel = $3
-                volumer = $10
-                volumelp = $5
-                volumerp = $12
-            } else if ($1 == "active" && $2 == "port:" && $3 ~ /headphones/) {
-                headphone = 1
+    awk -v ihm="$ICONhm" -v ihn="$ICONhn" -v ism="$ICONsm" -v isn="$ICONsn" '
+        {
+            if (f) {
+                if ($1 == "index:") {
+                    exit
+                }
+                if ($1 == "muted:" && $2 == "yes") {
+                    m = 1
+                } else if ($1 == "volume:") {
+                    if ($3 == $10) {
+                        vb = $5
+                    } else {
+                        vl = $5
+                        vr = $12
+                    }
+                } else if ($1 == "active" && $2 == "port:" && $3 ~ /headphone/) {
+                    h = 1
+                }
+            } else if ($1 == "*" && $2 == "index:") {
+                f = 1
             }
         }
         END {
-            printf "%s", headphone ? (muted ? iconhm : iconhn) : (muted ? iconsm : iconsn)
-            if (volumel == volumer) {
-                print volumelp
-            } else {
-                printf "L%s R%s\n", volumelp, volumerp
+            if (f) {
+                printf "%s", h ? (m ? ihm : ihn) : (m ? ism : isn)
+                if (vb) {
+                    print vb
+                } else {
+                    printf "L%s R%s\n", vl, vr
+                }
             }
         }
     '
