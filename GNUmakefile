@@ -1,9 +1,7 @@
-#PREFIX := /usr/local
-PREFIX := ${HOME}/.local
+PREFIX := /usr/local
 
 CC := gcc
 CFLAGS := -O3 -Wall -Wextra
-CFLAGSEXTRA := -Wno-missing-field-initializers -Wno-unused-parameter
 
 X11CFLAGS := $(shell pkg-config --cflags x11)
 X11LIBS := $(shell pkg-config --libs x11)
@@ -11,7 +9,7 @@ X11LIBS := $(shell pkg-config --libs x11)
 all: dwmblocks sigdwmblocks
 
 dwmblocks: dwmblocks.c blocks.h
-	${CC} -o $@ ${CFLAGS} ${CFLAGSEXTRA} ${X11CFLAGS} $< ${X11LIBS}
+	${CC} -o $@ -Wno-missing-field-initializers -Wno-unused-parameter ${CFLAGS} ${X11CFLAGS} $< ${X11LIBS}
 
 sigdwmblocks: sigdwmblocks.c
 	${CC} -o $@ ${CFLAGS} $<
@@ -26,8 +24,9 @@ install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	install -m 0755 dwmblocks ${DESTDIR}${PREFIX}/bin/dwmblocks
 	install -m 0755 sigdwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks
+	install -m 0755 xgetrootname ${DESTDIR}${PREFIX}/bin/xgetrootname
 
 uninstall:
-	rm -f ${DESTDIR}${PREFIX}/bin/dwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks
+	rm -f ${DESTDIR}${PREFIX}/bin/dwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks ${DESTDIR}${PREFIX}/bin/xgetrootname
 
 .PHONY: all clean install uninstall
