@@ -43,8 +43,7 @@ first argument to the program specified for updating the block.
 
 # xgetrootname
 
-It is a tiny program to get the current root name. May prove helpful in
-debugging.
+A tiny program to get the current root name. May prove helpful in debugging.
 
 # Installation
 
