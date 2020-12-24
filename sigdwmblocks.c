@@ -11,36 +11,37 @@
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
 int
-parsesignal(char *c, int *s)
+parsesignal(char *arg, int *s)
 {
-        for (*s = 0; *c != '\0'; c++)
-                if (*c >= '0' && *c <= '9') {
-                        *s *= 10;
-                        *s += *c - '0';
-                } else
+        int i = 0;
+
+        for (; *arg != '\0'; arg++)
+                if (*arg >= '0' && *arg <= '9')
+                        i = 10 * i + *arg - '0';
+                else
                         return 0;
-        if ((*s += SIGRTMIN) > SIGRTMAX)
+        if ((i += SIGRTMIN) > SIGRTMAX)
                 return 0;
+        *s = i;
         return 1;
 }
 
 int
-parsesigval(char *c, int *v)
+parsesigval(char *arg, int *v)
 {
-        int s = 1;
+        int s = 1, i = 0;
 
-        if (*c == '-') {
+        if (*arg == '-') {
                 s = -1;
-                c++;
-        } else if (*c == '+')
-                c++;
-        for (*v = 0; *c != '\0'; c++)
-                if (*c >= '0' && *c <= '9') {
-                        *v *= 10;
-                        *v += *c - '0';
-                } else
+                arg++;
+        } else if (*arg == '+')
+                arg++;
+        for (; *arg != '\0'; arg++)
+                if (*arg >= '0' && *arg <= '9')
+                        i = 10 * i + *arg - '0';
+                else
                         return 0;
-        *v *= s;
+        *v = s * i;
         return 1;
 }
 
