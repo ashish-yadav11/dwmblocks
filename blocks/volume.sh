@@ -1,11 +1,12 @@
 #!/bin/sh
-ICONhm="" # headphone plugged in, muted
-ICONhn="" # headphone plugged in, not muted
-ICONsm="" # headphone unplugged, muted
-ICONsn="" # headphone unplugged, not muted
-
 pacmd list-sinks |
-    awk -v ihm="$ICONhm" -v ihn="$ICONhn" -v ism="$ICONsm" -v isn="$ICONsn" '
+    awk '
+        BEGIN {
+            ICONsn = "\x0c\x0b" # headphone unplugged, not muted
+            ICONsm = "\x0d\x0b" # headphone unplugged, muted
+            ICONhn = "\x0c\x0b" # headphone plugged in, not muted
+            ICONhm = "\x0d\x0b" # headphone plugged in, muted
+        }
         {
             if (f) {
                 if ($1 == "index:") {
@@ -29,7 +30,7 @@ pacmd list-sinks |
         }
         END {
             if (f) {
-                printf "%s", h ? (m ? ihm : ihn) : (m ? ism : isn)
+                printf "%s", h ? (m ? ICONhm : ICONhn) : (m ? ICONsm : ICONsn)
                 if (vb) {
                     print vb
                 } else {

@@ -1,3 +1,3 @@
 #!/bin/sh
-ICON=""
-echo "${ICON}$(date '+%a, %d %b')"
+ICON="\x0c\x0b"
+printf "$ICON%s" "$(date '+%a, %b %d, %R')"

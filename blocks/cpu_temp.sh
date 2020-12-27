@@ -1,15 +1,15 @@
 #!/bin/sh
 
-ICONc="" # icon for critical temperatures
-ICONn="" # icon for normal temperatures
+ICONn="\x0c\x0b" # icon for normal temperatures
+ICONc="\x0d\x0b" # icon for critical temperatures
 
 crit=70 # critical temperature
 
 read -r temp </sys/class/thermal/thermal_zone0/temp
 temp=${temp%???}
 
-if [ "$temp" -ge "$crit" ] ; then
-    echo "${ICONc}${temp}°C"
+if [ "$temp" -lt "$crit" ] ; then
+    printf "$ICONn%s°C" "$temp"
 else
-    echo "${ICONn}${temp}°C"
+    printf "$ICONc%s°C" "$temp"
 fi

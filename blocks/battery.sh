@@ -1,4 +1,4 @@
 #!/bin/sh
-ICON=""
+ICON="\x0c\x0b"
 read -r capacity </sys/class/power_supply/BAT0/capacity
-echo "${ICON}${capacity}%"
+printf "$ICON%s%%" "$capacity"
