@@ -1,7 +1,7 @@
 diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 --- dwm-6.2-ori/config.def.h	2020-08-17 23:51:19.053910127 +0530
-+++ dwm-6.2/config.def.h	2020-08-18 03:44:20.360800879 +0530
-@@ -16,10 +16,34 @@
++++ dwm-6.2/config.def.h	2020-12-27 20:01:15.106831834 +0530
+@@ -16,10 +16,26 @@
  static const char col_gray3[]       = "#bbbbbb";
  static const char col_gray4[]       = "#eeeeee";
  static const char col_cyan[]        = "#005577";
@@ -11,12 +11,10 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 +static const char col4[]            = "#ffffff";
 +static const char col5[]            = "#ffffff";
 +static const char col6[]            = "#ffffff";
-+static const char col7[]            = "#ffffff";
-+static const char col8[]            = "#ffffff";
-+static const char col9[]            = "#ffffff";
-+static const char col10[]           = "#ffffff";
-+static const char col11[]           = "#ffffff";
-+static const char col12[]           = "#ffffff";
++
++enum { SchemeNorm, SchemeCol1, SchemeCol2, SchemeCol3, SchemeCol4,
++       SchemeCol5, SchemeCol6, SchemeSel }; /* color schemes */
++
  static const char *colors[][3]      = {
  	/*               fg         bg         border   */
 -	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -28,17 +26,11 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 +	[SchemeCol4]  = { col4,      col_gray1, col_gray2 },
 +	[SchemeCol5]  = { col5,      col_gray1, col_gray2 },
 +	[SchemeCol6]  = { col6,      col_gray1, col_gray2 },
-+	[SchemeCol7]  = { col7,      col_gray1, col_gray2 },
-+	[SchemeCol8]  = { col8,      col_gray1, col_gray2 },
-+	[SchemeCol9]  = { col8,      col_gray1, col_gray2 },
-+	[SchemeCol10] = { col10,     col_gray1, col_gray2 },
-+	[SchemeCol11] = { col11,     col_gray1, col_gray2 },
-+	[SchemeCol12] = { col12,     col_gray1, col_gray2 },
 +	[SchemeSel]   = { col_gray4, col_cyan,  col_cyan  },
  };
  
  /* tagging */
-@@ -107,7 +131,9 @@
+@@ -107,7 +123,9 @@
  	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
  	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
  	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
@@ -51,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-08-17 23:51:19.057243495 +0530
-+++ dwm-6.2/dwm.c	2020-12-05 04:02:31.417493808 +0530
++++ dwm-6.2/dwm.c	2020-12-27 20:04:13.757998389 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -60,7 +52,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  
  #include "drw.h"
  #include "util.h"
-@@ -56,6 +57,10 @@
+@@ -56,6 +57,11 @@
  #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
  #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
  #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
@@ -68,23 +60,21 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +
 +#define STATUSLENGTH            256
 +#define DWMBLOCKSLOCKFILE       "/tmp/dwmblocks.pid"
++#define DELIMITERENDCHAR        10
  
  #define SYSTEM_TRAY_REQUEST_DOCK    0
  
-@@ -74,8 +79,10 @@
+@@ -74,8 +80,7 @@
  #define XEMBED_EMBEDDED_VERSION (VERSION_MAJOR << 16) | VERSION_MINOR
  
  /* enums */
 -enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 -enum { SchemeNorm, SchemeSel }; /* color schemes */
 +enum { CurNormal, CurHand, CurResize, CurMove, CurLast }; /* cursor */
-+enum { SchemeNorm, SchemeCol1, SchemeCol2, SchemeCol3, SchemeCol4,
-+       SchemeCol5, SchemeCol6, SchemeCol7, SchemeCol8, SchemeCol9,
-+       SchemeCol10, SchemeCol11, SchemeCol12, SchemeSel }; /* color schemes */
  enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
         NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
         NetWMFullscreen, NetActiveWindow, NetWMWindowType,
-@@ -234,6 +241,7 @@
+@@ -234,6 +239,7 @@
  static void seturgent(Client *c, int urg);
  static void showhide(Client *c);
  static void sigchld(int unused);
@@ -92,7 +82,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static void spawn(const Arg *arg);
  static Monitor *systraytomon(Monitor *m);
  static void tag(const Arg *arg);
-@@ -249,6 +257,7 @@
+@@ -249,6 +255,7 @@
  static void updatebarpos(Monitor *m);
  static void updatebars(void);
  static void updateclientlist(void);
@@ -100,7 +90,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static int updategeom(void);
  static void updatenumlockmask(void);
  static void updatesizehints(Client *c);
-@@ -269,14 +278,17 @@
+@@ -269,14 +276,17 @@
  static void zoom(const Arg *arg);
  
  /* variables */
@@ -123,7 +113,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static unsigned int numlockmask = 0;
  static void (*handler[LASTEvent]) (XEvent *) = {
  	[ButtonPress] = buttonpress,
-@@ -303,6 +315,7 @@
+@@ -303,6 +313,7 @@
  static Drw *drw;
  static Monitor *mons, *selmon;
  static Window root, wmcheckwin;
@@ -131,12 +121,12 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  
  /* configuration, allows nested code to access above variables */
  #include "config.h"
-@@ -452,13 +465,13 @@
+@@ -452,13 +463,13 @@
  void
  buttonpress(XEvent *e)
  {
 -	unsigned int i, x, click;
-+	int i, x;
++        int i, x;
 +        unsigned int click;
  	Arg arg = {0};
  	Client *c;
@@ -147,7 +137,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	/* focus monitor if necessary */
  	if ((m = wintomon(ev->window)) && m != selmon) {
  		unfocus(selmon->sel, 1);
-@@ -466,25 +479,34 @@
+@@ -466,25 +477,34 @@
  		focus(NULL);
  	}
  	if (ev->window == selmon->barwin) {
@@ -196,7 +186,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	for (i = 0; i < LENGTH(buttons); i++)
  		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
  		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
-@@ -789,23 +811,44 @@
+@@ -789,23 +809,44 @@
  void
  drawbar(Monitor *m)
  {
@@ -226,7 +216,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                x = wbar - wstext;
 +                drw_rect(drw, x, 0, lrpad / 2, bh, 1, 1); x += lrpad / 2; /* to keep left padding clean */
 +                for (;;) {
-+                        if ((unsigned char)*ts > LENGTH(colors) + 10) {
++                        if ((unsigned char)*ts > LENGTH(colors) + DELIMITERENDCHAR) {
 +                                ts++;
 +                                continue;
 +                        }
@@ -236,7 +226,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                                x = drw_text(drw, x, 0, TTEXTW(tp), bh, 0, tp, 0);
 +                        if (ctmp == '\0')
 +                                break;
-+                        drw_setscheme(drw, scheme[ctmp - 11]);
++                        drw_setscheme(drw, scheme[ctmp - DELIMITERENDCHAR - 1]);
 +                        *ts = ctmp;
 +                        tp = ++ts;
 +                }
@@ -248,7 +238,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	for (c = m->clients; c; c = c->next) {
  		occ |= c->tags;
  		if (c->isurgent)
-@@ -822,11 +865,17 @@
+@@ -822,11 +863,17 @@
  				urg & 1 << i);
  		x += w;
  	}
@@ -268,7 +258,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  		if (m->sel) {
  			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-@@ -837,7 +886,9 @@
+@@ -837,7 +884,9 @@
  			drw_rect(drw, x, 0, w, bh, 1, 1);
  		}
  	}
@@ -279,7 +269,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  }
  
  void
-@@ -1246,14 +1297,25 @@
+@@ -1246,14 +1295,25 @@
  	Monitor *m;
  	XMotionEvent *ev = &e->xmotion;
  
@@ -313,7 +303,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  }
  
  void
-@@ -1750,6 +1812,7 @@
+@@ -1750,6 +1810,7 @@
  	xatom[XembedInfo] = XInternAtom(dpy, "_XEMBED_INFO", False);
  	/* init cursors */
  	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -321,7 +311,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
-@@ -1825,6 +1888,28 @@
+@@ -1825,6 +1886,28 @@
  }
  
  void
@@ -329,11 +319,11 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +{
 +        int fd;
 +        struct flock fl;
-+	union sigval sv;
++        union sigval sv;
 +
 +        if (!dwmblockssig)
 +                return;
-+	sv.sival_int = (dwmblockssig << 8) | arg->i;
++        sv.sival_int = (dwmblockssig << 8) | arg->i;
 +        fd = open(DWMBLOCKSLOCKFILE, O_RDONLY);
 +        if (fd == -1)
 +                return;
@@ -350,7 +340,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  spawn(const Arg *arg)
  {
  	if (arg->v == dmenucmd)
-@@ -2011,7 +2096,7 @@
+@@ -2011,7 +2094,7 @@
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
  		.background_pixmap = ParentRelative,
@@ -359,7 +349,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	};
  	XClassHint ch = {"dwm", "dwm"};
  	for (m = mons; m; m = m->next) {
-@@ -2058,6 +2143,42 @@
+@@ -2058,6 +2141,42 @@
  				(unsigned char *) &(c->win), 1);
  }
  
@@ -371,7 +361,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +        char ctmp;
 +
 +        while (*ts != '\0') {
-+                if ((unsigned char)*ts > 10) {
++                if ((unsigned char)*ts > DELIMITERENDCHAR) {
 +                        ts++;
 +                        continue;
 +                }
@@ -380,7 +370,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                x += TTEXTW(tp);
 +                *ts = ctmp;
 +                if (x >= 0) {
-+                        if (ctmp == 10)
++                        if (ctmp == DELIMITERENDCHAR)
 +                                goto cursorondelim;
 +                        if (!statushandcursor) {
 +                                statushandcursor = 1;
@@ -402,7 +392,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -2198,10 +2319,27 @@
+@@ -2198,10 +2317,27 @@
  void
  updatestatus(void)
  {
@@ -419,7 +409,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                for (char *rst = rawstext; *rst != '\0'; rst++)
 +                        if ((unsigned char)*rst >= ' ')
 +                                *(stp++) = *(stc++) = *(sts++) = *rst;
-+                        else if ((unsigned char)*rst > 10)
++                        else if ((unsigned char)*rst > DELIMITERENDCHAR)
 +                                *(stc++) = *rst;
 +                        else
 +                                *(sts++) = *rst;
