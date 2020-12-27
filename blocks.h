@@ -1,14 +1,14 @@
 #define PATH(name)                      "/home/ashish/.local/projects/dwmblocks/blocks/"name
 
-/* At max, DELIMITERENDCHAR - 1 number of clickable blocks will be allowed.
- * DELIMITERENDCHAR must be less than 32.
+/* DELIMITERENDCHAR must be less than 32.
+ * At max, DELIMITERENDCHAR - 1 number of clickable blocks will be allowed.
  * Raw characters larger than DELIMITERENDCHAR and smaller than ' ' in ASCII
    character set can be used for signaling color change in status.
  * The character corresponding to DELIMITERENDCHAR + 1 ('\x0b' when
    DELIMITERENDCHAR is 10) will switch the active colorscheme to the first one
-   defined in colors array in dwm and so on.
- * If you change this, don't forget to update its value in dwm.c and color
-   codes in your pathu programs. */
+   defined in colors array in dwm's config.h and so on.
+ * If you wish to change this, don't forget to update its value in dwm.c and
+   color codes in your pathu programs. */
 
 #define DELIMITERENDCHAR                10
 
