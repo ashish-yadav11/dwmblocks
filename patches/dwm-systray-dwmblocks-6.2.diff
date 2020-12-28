@@ -43,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-08-17 23:51:19.057243495 +0530
-+++ dwm-6.2/dwm.c	2020-12-27 20:04:13.757998389 +0530
++++ dwm-6.2/dwm.c	2020-12-28 21:48:30.327935787 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -74,7 +74,15 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
         NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
         NetWMFullscreen, NetActiveWindow, NetWMWindowType,
-@@ -234,6 +239,7 @@
+@@ -142,6 +147,7 @@
+ 	unsigned int tagset[2];
+ 	int showbar;
+ 	int topbar;
++        int statushandcursor;
+ 	Client *clients;
+ 	Client *sel;
+ 	Client *stack;
+@@ -234,6 +240,7 @@
  static void seturgent(Client *c, int urg);
  static void showhide(Client *c);
  static void sigchld(int unused);
@@ -82,7 +90,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static void spawn(const Arg *arg);
  static Monitor *systraytomon(Monitor *m);
  static void tag(const Arg *arg);
-@@ -249,6 +255,7 @@
+@@ -249,6 +256,7 @@
  static void updatebarpos(Monitor *m);
  static void updatebars(void);
  static void updateclientlist(void);
@@ -90,7 +98,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  static int updategeom(void);
  static void updatenumlockmask(void);
  static void updatesizehints(Client *c);
-@@ -269,14 +276,17 @@
+@@ -269,14 +277,17 @@
  static void zoom(const Arg *arg);
  
  /* variables */
@@ -100,20 +108,18 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +static char stextc[STATUSLENGTH];
 +static char stexts[STATUSLENGTH];
  static int screen;
--static int sw, sh;           /* X display screen geometry width, height */
+ static int sw, sh;           /* X display screen geometry width, height */
 -static int bh, blw = 0;      /* bar geometry */
--static int lrpad;            /* sum of left and right padding for text */
-+static int sw, sh;              /* X display screen geometry width, height */
-+static int bh, blw, ble, stw;   /* bar geometry */
-+static int lrpad;               /* sum of left and right padding for text */
++static int bh, blw, ble;     /* bar geometry */
++static int wsbar;            /* width of selmon bar */
++static int wstext;           /* width of status text */
+ static int lrpad;            /* sum of left and right padding for text */
  static int (*xerrorxlib)(Display *, XErrorEvent *);
-+static int statushandcursor;
-+static int wstext;
 +static unsigned int dwmblockssig;
  static unsigned int numlockmask = 0;
  static void (*handler[LASTEvent]) (XEvent *) = {
  	[ButtonPress] = buttonpress,
-@@ -303,6 +313,7 @@
+@@ -303,6 +314,7 @@
  static Drw *drw;
  static Monitor *mons, *selmon;
  static Window root, wmcheckwin;
@@ -121,7 +127,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  
  /* configuration, allows nested code to access above variables */
  #include "config.h"
-@@ -452,13 +463,13 @@
+@@ -452,13 +464,13 @@
  void
  buttonpress(XEvent *e)
  {
@@ -137,7 +143,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	/* focus monitor if necessary */
  	if ((m = wintomon(ev->window)) && m != selmon) {
  		unfocus(selmon->sel, 1);
-@@ -466,25 +477,34 @@
+@@ -466,25 +478,29 @@
  		focus(NULL);
  	}
  	if (ev->window == selmon->barwin) {
@@ -154,27 +160,22 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 -			click = ClkStatusText;
 -		else
 -			click = ClkWinTitle;
-+                if (ev->x < ble) {
-+                        if (ev->x < ble - blw) {
-+                                i = -1, x = -ev->x;
-+                                do
-+                                        x += TEXTW(tags[++i]);
-+                                while (x <= 0);
-+                                click = ClkTagBar;
-+                                arg.ui = 1 << i;
-+                        } else
-+                                click = ClkLtSymbol;
-+                } else {
-+                        int wbar = showsystray && selmon == systraytomon(selmon) ? selmon->ww - stw : selmon->ww;
-+
-+                        if (ev->x < wbar - wstext)
-+                                click = ClkWinTitle;
-+                        else if ((x = wbar - lrpad / 2 - ev->x) > 0 && (x -= wstext - lrpad) <= 0) {
-+                                updatedwmblockssig(x);
-+                                click = ClkStatusText;
-+                        } else
++                if (ev->x < ble - blw) {
++                        i = -1, x = -ev->x;
++                        do
++                                x += TEXTW(tags[++i]);
++                        while (x <= 0);
++                        click = ClkTagBar;
++                        arg.ui = 1 << i;
++                } else if (ev->x < ble)
++                        click = ClkLtSymbol;
++                else if (ev->x < wsbar - wstext)
++                        click = ClkWinTitle;
++                else if ((x = wsbar - lrpad / 2 - ev->x) > 0 && (x -= wstext - lrpad) <= 0) {
++                        updatedwmblockssig(x);
++                        click = ClkStatusText;
++                } else
 +                                return;
-+                }
  	} else if ((c = wintoclient(ev->window))) {
  		focus(c);
  		restack(selmon);
@@ -186,7 +187,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	for (i = 0; i < LENGTH(buttons); i++)
  		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
  		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
-@@ -789,23 +809,44 @@
+@@ -789,23 +805,45 @@
  void
  drawbar(Monitor *m)
  {
@@ -201,7 +202,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 -	if(showsystray && m == systraytomon(m))
 -		stw = getsystraywidth();
 +        if (showsystray && m == systraytomon(m))
-+                wbar -= (stw = getsystraywidth());
++                wbar -= getsystraywidth();
  
  	/* draw status first so it can be overdrawn by tags later */
  	if (m == selmon) { /* status is only drawn on selected monitor */
@@ -212,6 +213,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                char *tp = stextc;
 +                char ctmp;
 +
++                wsbar = wbar;
 +                drw_setscheme(drw, scheme[SchemeNorm]);
 +                x = wbar - wstext;
 +                drw_rect(drw, x, 0, lrpad / 2, bh, 1, 1); x += lrpad / 2; /* to keep left padding clean */
@@ -238,7 +240,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	for (c = m->clients; c; c = c->next) {
  		occ |= c->tags;
  		if (c->isurgent)
-@@ -822,11 +863,17 @@
+@@ -822,11 +860,17 @@
  				urg & 1 << i);
  		x += w;
  	}
@@ -258,7 +260,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  		if (m->sel) {
  			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-@@ -837,7 +884,9 @@
+@@ -837,7 +881,9 @@
  			drw_rect(drw, x, 0, w, bh, 1, 1);
  		}
  	}
@@ -269,7 +271,11 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  }
  
  void
-@@ -1246,14 +1295,25 @@
+@@ -1243,17 +1289,24 @@
+ motionnotify(XEvent *e)
+ {
+ 	static Monitor *mon = NULL;
++        int x;
  	Monitor *m;
  	XMotionEvent *ev = &e->xmotion;
  
@@ -288,22 +294,17 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        focus(NULL);
 +                }
 +                mon = m;
-+        } else if (ev->window == selmon->barwin) {
-+                int x = selmon->ww - lrpad / 2 - ev->x;
-+
-+                if (showsystray && selmon == systraytomon(selmon))
-+                        x -= stw;
-+                if (ev->x >= ble && x > 0 && (x -= wstext - lrpad) <= 0)
-+                        updatedwmblockssig(x);
-+                else if (statushandcursor) {
-+                        statushandcursor = 0;
-+                        XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
-+                }
++        } else if (ev->window == selmon->barwin && (x = wsbar - lrpad / 2 - ev->x) > 0
++                                                && (x -= wstext - lrpad) <= 0)
++                updatedwmblockssig(x);
++        else if (selmon->statushandcursor) {
++                selmon->statushandcursor = 0;
++                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
 +        }
  }
  
  void
-@@ -1750,6 +1810,7 @@
+@@ -1750,6 +1803,7 @@
  	xatom[XembedInfo] = XInternAtom(dpy, "_XEMBED_INFO", False);
  	/* init cursors */
  	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -311,7 +312,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
-@@ -1825,6 +1886,28 @@
+@@ -1825,6 +1879,28 @@
  }
  
  void
@@ -340,7 +341,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  spawn(const Arg *arg)
  {
  	if (arg->v == dmenucmd)
-@@ -2011,7 +2094,7 @@
+@@ -2011,7 +2087,7 @@
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
  		.background_pixmap = ParentRelative,
@@ -349,7 +350,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	};
  	XClassHint ch = {"dwm", "dwm"};
  	for (m = mons; m; m = m->next) {
-@@ -2058,6 +2141,42 @@
+@@ -2058,6 +2134,42 @@
  				(unsigned char *) &(c->win), 1);
  }
  
@@ -372,8 +373,8 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                if (x >= 0) {
 +                        if (ctmp == DELIMITERENDCHAR)
 +                                goto cursorondelim;
-+                        if (!statushandcursor) {
-+                                statushandcursor = 1;
++                        if (!selmon->statushandcursor) {
++                                selmon->statushandcursor = 1;
 +                                XDefineCursor(dpy, selmon->barwin, cursor[CurHand]->cursor);
 +                        }
 +                        dwmblockssig = ctmp;
@@ -382,8 +383,8 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                tp = ++ts;
 +        }
 +cursorondelim:
-+        if (statushandcursor) {
-+                statushandcursor = 0;
++        if (selmon->statushandcursor) {
++                selmon->statushandcursor = 0;
 +                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
 +        }
 +        dwmblockssig = 0;
@@ -392,7 +393,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -2198,10 +2317,27 @@
+@@ -2198,10 +2310,27 @@
  void
  updatestatus(void)
  {
