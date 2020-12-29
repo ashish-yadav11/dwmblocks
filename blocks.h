@@ -9,7 +9,6 @@
    defined in colors array in dwm's config.h and so on.
  * If you wish to change DELIMITERENDCHAR, don't forget to update its value in
    dwm.c and color codes in your pathu programs. */
-
 #define DELIMITERENDCHAR                10
 
 /* If interval of a block is set to 0, the block will only be updated once at
