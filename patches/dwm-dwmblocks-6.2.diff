@@ -43,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/dwm.c	2020-12-28 21:41:08.356370628 +0530
++++ dwm-6.2/dwm.c	2020-12-30 02:16:07.078564261 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -180,41 +180,43 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	int boxs = drw->fonts->h / 9;
  	int boxw = drw->fonts->h / 6 + 2;
  	unsigned int i, occ = 0, urg = 0;
-@@ -703,9 +718,30 @@
+@@ -703,9 +718,32 @@
  
  	/* draw status first so it can be overdrawn by tags later */
  	if (m == selmon) { /* status is only drawn on selected monitor */
 -		drw_setscheme(drw, scheme[SchemeNorm]);
 -		sw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
 -		drw_text(drw, m->ww - sw, 0, sw, bh, 0, stext, 0);
-+                char *ts = stextc;
-+                char *tp = stextc;
-+                char ctmp;
++                char *stc = stextc;
++                char *stp = stextc;
++                char tmp;
 +
 +                drw_setscheme(drw, scheme[SchemeNorm]);
 +                x = m->ww - wstext;
 +                drw_rect(drw, x, 0, lrpad / 2, bh, 1, 1); x += lrpad / 2; /* to keep left padding clean */
 +                for (;;) {
-+                        if ((unsigned char)*ts > LENGTH(colors) + DELIMITERENDCHAR) {
-+                                ts++;
++                        if ((unsigned char)*stc >= ' ') {
++                                stc++;
 +                                continue;
 +                        }
-+                        ctmp = *ts;
-+                        *ts = '\0';
-+                        if (*tp != '\0')
-+                                x = drw_text(drw, x, 0, TTEXTW(tp), bh, 0, tp, 0);
-+                        if (ctmp == '\0')
++                        tmp = *stc;
++                        if (stp != stc) {
++                                *stc = '\0';
++                                x = drw_text(drw, x, 0, TTEXTW(stp), bh, 0, stp, 0);
++                        }
++                        if (tmp == '\0')
 +                                break;
-+                        drw_setscheme(drw, scheme[ctmp - DELIMITERENDCHAR - 1]);
-+                        *ts = ctmp;
-+                        tp = ++ts;
++                        if (tmp - DELIMITERENDCHAR - 1 < LENGTH(colors))
++                                drw_setscheme(drw, scheme[tmp - DELIMITERENDCHAR - 1]);
++                        *stc = tmp;
++                        stp = ++stc;
 +                }
 +                drw_setscheme(drw, scheme[SchemeNorm]);
 +                drw_rect(drw, x, 0, m->ww - x, bh, 1, 1); /* to keep right padding clean */
  	}
  
  	for (c = m->clients; c; c = c->next) {
-@@ -724,11 +760,17 @@
+@@ -724,11 +762,17 @@
  				urg & 1 << i);
  		x += w;
  	}
@@ -234,7 +236,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  		if (m->sel) {
  			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-@@ -1119,17 +1161,24 @@
+@@ -1119,17 +1163,24 @@
  motionnotify(XEvent *e)
  {
  	static Monitor *mon = NULL;
@@ -267,7 +269,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  }
  
  void
-@@ -1564,6 +1613,7 @@
+@@ -1564,6 +1615,7 @@
  	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
  	/* init cursors */
  	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -275,7 +277,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
-@@ -1637,6 +1687,28 @@
+@@ -1637,6 +1689,28 @@
  }
  
  void
@@ -304,7 +306,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  spawn(const Arg *arg)
  {
  	if (arg->v == dmenucmd)
-@@ -1805,7 +1877,7 @@
+@@ -1805,7 +1879,7 @@
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
  		.background_pixmap = ParentRelative,
@@ -313,39 +315,38 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	};
  	XClassHint ch = {"dwm", "dwm"};
  	for (m = mons; m; m = m->next) {
-@@ -1847,6 +1919,42 @@
+@@ -1847,6 +1921,41 @@
  				(unsigned char *) &(c->win), 1);
  }
  
 +void
 +updatedwmblockssig(int x)
 +{
-+        char *ts = stexts;
-+        char *tp = stexts;
-+        char ctmp;
++        char *sts = stexts;
++        char *stp = stexts;
++        char tmp;
 +
-+        while (*ts != '\0') {
-+                if ((unsigned char)*ts > DELIMITERENDCHAR) {
-+                        ts++;
++        do {
++                if ((unsigned char)*sts >= ' ') {
++                        sts++;
 +                        continue;
 +                }
-+                ctmp = *ts;
-+                *ts = '\0';
-+                x += TTEXTW(tp);
-+                *ts = ctmp;
-+                if (x >= 0) {
-+                        if (ctmp == DELIMITERENDCHAR)
-+                                goto cursorondelim;
++                tmp = *sts;
++                *sts = '\0';
++                x += TTEXTW(stp);
++                *sts = tmp;
++                if (x > 0) {
++                        if (tmp == DELIMITERENDCHAR)
++                                break;
 +                        if (!selmon->statushandcursor) {
 +                                selmon->statushandcursor = 1;
 +                                XDefineCursor(dpy, selmon->barwin, cursor[CurHand]->cursor);
 +                        }
-+                        dwmblockssig = ctmp;
++                        dwmblockssig = tmp;
 +                        return;
 +                }
-+                tp = ++ts;
-+        }
-+cursorondelim:
++                stp = ++sts;
++        } while (*sts != '\0');
 +        if (selmon->statushandcursor) {
 +                selmon->statushandcursor = 0;
 +                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
@@ -356,7 +357,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -1987,9 +2095,27 @@
+@@ -1987,9 +2096,27 @@
  void
  updatestatus(void)
  {
