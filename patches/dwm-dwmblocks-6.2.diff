@@ -43,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/dwm.c	2020-12-30 02:16:07.078564261 +0530
++++ dwm-6.2/dwm.c	2020-12-30 16:24:10.847012386 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -326,7 +326,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +        char *stp = stexts;
 +        char tmp;
 +
-+        do {
++        while (*sts != '\0') {
 +                if ((unsigned char)*sts >= ' ') {
 +                        sts++;
 +                        continue;
@@ -346,7 +346,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        return;
 +                }
 +                stp = ++sts;
-+        } while (*sts != '\0');
++        }
 +        if (selmon->statushandcursor) {
 +                selmon->statushandcursor = 0;
 +                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
