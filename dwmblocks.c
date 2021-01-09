@@ -326,14 +326,14 @@ writepid()
         int fd;
         struct flock fl;
 
-        fd = open(LOCKFILE, O_RDWR|O_CREAT, 0644);
+        fd = open(LOCKFILE, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (fd == -1) {
                 perror("writepid - open");
                 exit(1);
         }
         fl.l_type = F_WRLCK;
-        fl.l_start = 0;
         fl.l_whence = SEEK_SET;
+        fl.l_start = 0;
         fl.l_len = 0;
         if (fcntl(fd, F_SETLK, &fl) == -1) {
                 if (errno == EACCES || errno == EAGAIN) {

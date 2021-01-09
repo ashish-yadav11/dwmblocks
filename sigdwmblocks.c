@@ -60,13 +60,15 @@ sendsignal(int sig, union sigval sv)
                 exit(1);
         }
         fl.l_type = F_WRLCK;
-        fl.l_start = 0;
         fl.l_whence = SEEK_SET;
+        fl.l_start = 0;
         fl.l_len = 0;
         if (fcntl(fd, F_GETLK, &fl) == -1) {
                 perror("sendsignal - fcntl");
+                close(fd);
                 exit(1);
         }
+        close(fd);
         if (fl.l_type == F_UNLCK) {
                 fputs("Error: no running instance of dwmblocks.\n", stderr);
                 exit(3);

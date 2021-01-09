@@ -43,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-08-17 23:51:19.057243495 +0530
-+++ dwm-6.2/dwm.c	2020-12-30 16:26:04.168439847 +0530
++++ dwm-6.2/dwm.c	2021-01-10 05:24:06.575894250 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -314,28 +314,40 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
-@@ -1825,6 +1881,28 @@
+@@ -1825,6 +1881,40 @@
  }
  
  void
 +sigdwmblocks(const Arg *arg)
 +{
-+        int fd;
++        static int fd = -1;
 +        struct flock fl;
 +        union sigval sv;
 +
 +        if (!dwmblockssig)
 +                return;
-+        sv.sival_int = (dwmblockssig << 8) | arg->i;
-+        fd = open(DWMBLOCKSLOCKFILE, O_RDONLY);
-+        if (fd == -1)
-+                return;
 +        fl.l_type = F_WRLCK;
-+        fl.l_start = 0;
 +        fl.l_whence = SEEK_SET;
++        fl.l_start = 0;
 +        fl.l_len = 0;
-+        if (fcntl(fd, F_GETLK, &fl) == -1 || fl.l_type == F_UNLCK)
-+                return;
++        if (fd == -1) {
++                if ((fd = open(DWMBLOCKSLOCKFILE, O_RDONLY)) == -1)
++                        return;
++                if (fcntl(fd, F_GETLK, &fl) == -1 || fl.l_type == F_UNLCK)
++                        return;
++        } else {
++                if (fcntl(fd, F_GETLK, &fl) == -1)
++                        return;
++                if (fl.l_type == F_UNLCK) {
++                        close(fd);
++                        if ((fd = open(DWMBLOCKSLOCKFILE, O_RDONLY)) == -1)
++                                return;
++                        fl.l_type = F_WRLCK;
++                        if (fcntl(fd, F_GETLK, &fl) == -1 || fl.l_type == F_UNLCK)
++                                return;
++                }
++        }
++        sv.sival_int = (dwmblockssig << 8) | arg->i;
 +        sigqueue(fl.l_pid, SIGRTMIN, sv);
 +}
 +
@@ -343,7 +355,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  spawn(const Arg *arg)
  {
  	if (arg->v == dmenucmd)
-@@ -2011,7 +2089,7 @@
+@@ -2011,7 +2101,7 @@
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
  		.background_pixmap = ParentRelative,
@@ -352,7 +364,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  	};
  	XClassHint ch = {"dwm", "dwm"};
  	for (m = mons; m; m = m->next) {
-@@ -2058,6 +2136,41 @@
+@@ -2058,6 +2148,41 @@
  				(unsigned char *) &(c->win), 1);
  }
  
@@ -394,7 +406,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
  int
  updategeom(void)
  {
-@@ -2198,10 +2311,27 @@
+@@ -2198,10 +2323,27 @@
  void
  updatestatus(void)
  {
