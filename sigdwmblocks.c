@@ -50,8 +50,7 @@ sendsignal(int sig, union sigval sv)
         int fd;
         struct flock fl;
 
-        fd = open(LOCKFILE, O_RDONLY);
-        if (fd == -1) {
+        if ((fd = open(LOCKFILE, O_RDONLY)) == -1) {
                 if (errno == ENOENT) {
                         fputs("Error: no running instance of dwmblocks.\n", stderr);
                         exit(3);

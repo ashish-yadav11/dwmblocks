@@ -326,8 +326,7 @@ writepid()
         int fd;
         struct flock fl;
 
-        fd = open(LOCKFILE, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-        if (fd == -1) {
+        if ((fd = open(LOCKFILE, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) == -1) {
                 perror("writepid - open");
                 exit(1);
         }
