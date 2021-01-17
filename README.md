@@ -12,6 +12,9 @@ signaling, clickability, cursor hinting and color.
 Blocks are added and removed by editing [blocks.h](blocks.h) file. Read it for
 more info.
 
+> Change the PATH macro defined at the top of the file. It should point to the
+> folder where your scripts are saved.
+
 > The provided blocks use siji font for icons.
 
 # Colored output and Clickability
