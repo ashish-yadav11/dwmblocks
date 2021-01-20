@@ -27,12 +27,12 @@ typedef struct {
 
 static void buttonhandler(int sig, siginfo_t *info, void *ucontext);
 static void cleanup();
-static void getcmd(Block *block, int sigval);
 static void setroot();
 static void setupsignals();
 static void sighandler(int sig, siginfo_t *si, void *ucontext);
 static void statusloop();
 static void termhandler(int sig);
+static void updateblock(Block *block, int sigval);
 static int updatestatus();
 static void writepid();
 
@@ -72,60 +72,6 @@ cleanup()
         unlink(LOCKFILE);
         XStoreName(dpy, DefaultRootWindow(dpy), "");
         XCloseDisplay(dpy);
-}
-
-void
-getcmd(Block *block, int sigval)
-{
-        int fd[2];
-
-        if (pipe(fd) == -1) {
-                perror("getcmd - pipe");
-                exit(1);
-        }
-        switch (fork()) {
-                case -1:
-                        perror("getcmd - fork");
-                        exit(1);
-                case 0:
-                        close(ConnectionNumber(dpy));
-                        close(fd[0]);
-                        if (fd[1] != STDOUT_FILENO) {
-                                if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
-                                        perror("getcmd - child - dup2");
-                                        exit(1);
-                                }
-                                close(fd[1]);
-                        }
-                        if (sigval == NILL) {
-                                char *arg[] = { block->pathu, NULL };
-
-                                execv(arg[0], arg);
-                        } else {
-                                char buf[12];
-                                char *arg[] = { block->pathu, buf, NULL };
-
-                                snprintf(buf, sizeof buf, "%d", sigval);
-                                execv(arg[0], arg);
-                        }
-                        perror("getcmd - child - execv");
-                        _exit(127);
-                default:
-                {
-                        size_t trd = 0;
-                        ssize_t rd;
-
-                        close(fd[1]);
-                        do
-                                rd = read(fd[0], block->cmdoutcur + trd, CMDLENGTH - trd);
-                        while (rd > 0 && (trd += rd) < CMDLENGTH);
-                        if (rd == -1) {
-                                perror("getcmd - read");
-                                exit(1);
-                        }
-                        close(fd[0]);
-                }
-        }
 }
 
 void
@@ -194,7 +140,7 @@ sighandler(int sig, siginfo_t *info, void *ucontext)
         sig -= SIGRTMIN;
         for (Block *block = blocks; block->pathu; block++)
                 if (block->signal == sig)
-                        getcmd(block, info->si_value.sival_int);
+                        updateblock(block, info->si_value.sival_int);
         setroot();
 }
 
@@ -208,7 +154,7 @@ statusloop()
         sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
         for (Block *block = blocks; block->pathu; block++)
                 if (block->interval >= 0)
-                        getcmd(block, NILL);
+                        updateblock(block, NILL);
         setroot();
         sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
         t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
@@ -223,7 +169,7 @@ statusloop()
                 sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
                 for (Block *block = blocks; block->pathu; block++)
                         if (block->interval > 0 && i % block->interval == 0)
-                                getcmd(block, NILL);
+                                updateblock(block, NILL);
                 setroot();
                 sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
                 t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
@@ -236,6 +182,60 @@ termhandler(int sig)
 {
         cleanup();
         exit(0);
+}
+
+void
+updateblock(Block *block, int sigval)
+{
+        int fd[2];
+
+        if (pipe(fd) == -1) {
+                perror("updateblock - pipe");
+                exit(1);
+        }
+        switch (fork()) {
+                case -1:
+                        perror("updateblock - fork");
+                        exit(1);
+                case 0:
+                        close(ConnectionNumber(dpy));
+                        close(fd[0]);
+                        if (fd[1] != STDOUT_FILENO) {
+                                if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
+                                        perror("updateblock - child - dup2");
+                                        exit(1);
+                                }
+                                close(fd[1]);
+                        }
+                        if (sigval == NILL) {
+                                char *arg[] = { block->pathu, NULL };
+
+                                execv(arg[0], arg);
+                        } else {
+                                char buf[12];
+                                char *arg[] = { block->pathu, buf, NULL };
+
+                                snprintf(buf, sizeof buf, "%d", sigval);
+                                execv(arg[0], arg);
+                        }
+                        perror("updateblock - child - execv");
+                        _exit(127);
+                default:
+                {
+                        size_t trd = 0;
+                        ssize_t rd;
+
+                        close(fd[1]);
+                        do
+                                rd = read(fd[0], block->cmdoutcur + trd, CMDLENGTH - trd);
+                        while (rd > 0 && (trd += rd) < CMDLENGTH);
+                        if (rd == -1) {
+                                perror("updateblock - read");
+                                exit(1);
+                        }
+                        close(fd[0]);
+                }
+        }
 }
 
 /* returns whether block outputs have changed and updates statustext if they have */
