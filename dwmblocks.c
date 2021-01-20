@@ -19,8 +19,8 @@ typedef struct {
         char *const pathc;
         const int interval;
         const int signal;
-        char cmdoutcur[CMDLENGTH];
-        char cmdoutprv[CMDLENGTH];
+        char cmdoutcur[CMDLENGTH + 1];
+        char cmdoutprv[CMDLENGTH + 1];
 } Block;
 
 #include "blocks.h"
@@ -111,12 +111,20 @@ getcmd(Block *block, int sigval)
                         perror("getcmd - child - execv");
                         _exit(127);
                 default:
+                {
+                        size_t trd = 0;
+                        ssize_t rd;
+
                         close(fd[1]);
-                        if (read(fd[0], block->cmdoutcur, CMDLENGTH) == -1) {
+                        do
+                                rd = read(fd[0], block->cmdoutcur + trd, CMDLENGTH - trd);
+                        while (rd > 0 && (trd += rd) < CMDLENGTH);
+                        if (rd == -1) {
                                 perror("getcmd - read");
                                 exit(1);
                         }
                         close(fd[0]);
+                }
         }
 }
 
