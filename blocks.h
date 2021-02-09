@@ -23,6 +23,8 @@
    delivered first. */
 
 /* pathu - path of the program whose output is used as status text of the block
+           (output of the program should be a single line of text with at most
+            one newline character at the end)
  * pathc - path of the program used for handling clicks on the block */
 
 /* 1 interval = INTERVALs seconds, INTERVALn nanoseconds */
