@@ -234,6 +234,7 @@ updateblock(Block *block, int sigval)
                                 exit(1);
                         }
                         close(fd[0]);
+                        block->curcmdout[block->curcmdout[trd - 1] == '\n' ? trd - 1 : trd] = '\0';
                 }
         }
 }
@@ -249,7 +250,7 @@ updatestatus()
         /* checking half of the function */
         for (; block->pathu; block++) {
                 c = block->curcmdout, p = block->prvcmdout;
-                for (; *c == *p && *c != '\n' && *c != '\0'; c++, p++);
+                for (; *c != '\0' && *c == *p; c++, p++);
                 s += c - block->curcmdout;
                 if (*c != *p)
                         goto update;
@@ -265,7 +266,7 @@ updatestatus()
         for (; block->pathu; block++) {
                 c = block->curcmdout, p = block->prvcmdout;
 update:
-                for (; *p = *c, *c != '\n' && *c != '\0'; c++, p++)
+                for (; (*p = *c) != '\0'; c++, p++)
                         *(s++) = *c;
                 if (c == block->curcmdout)
                         continue;

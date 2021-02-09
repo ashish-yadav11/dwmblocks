@@ -9,7 +9,7 @@ read -r temp </sys/class/thermal/thermal_zone0/temp
 temp=${temp%???}
 
 if [ "$temp" -lt "$crit" ] ; then
-    printf "$ICONn%s°C\n" "$temp"
+    printf "$ICONn%s°C" "$temp"
 else
-    printf "$ICONc%s°C\n" "$temp"
+    printf "$ICONc%s°C" "$temp"
 fi
