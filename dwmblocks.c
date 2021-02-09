@@ -244,33 +244,30 @@ int
 updatestatus()
 {
         char *s = statustext;
-        char *c, *p;
+        size_t len;
         Block *block = blocks;
 
         /* checking half of the function */
         for (; block->pathu; block++) {
-                c = block->curcmdout, p = block->prvcmdout;
-                for (; *c != '\0' && *c == *p; c++, p++);
-                s += c - block->curcmdout;
-                if (*c != *p)
+                len = strlen(block->curcmdout);
+                if (memcmp(block->curcmdout, block->prvcmdout, len + 1) != 0)
                         goto update;
-                if (c == block->curcmdout)
+                if (len == 0)
                         continue;
-                if (block->pathc /* && block->signal */)
-                        s++;
-                s += DELIMITERLENGTH;
+                s += len + (block->pathc ? 1 : 0) + DELIMITERLENGTH;
         }
         return 0;
 
         /* updating half of the function */
         for (; block->pathu; block++) {
-                c = block->curcmdout, p = block->prvcmdout;
+                len = strlen(block->curcmdout);
 update:
-                for (; (*p = *c) != '\0'; c++, p++)
-                        *(s++) = *c;
-                if (c == block->curcmdout)
+                memcpy(block->prvcmdout, block->curcmdout, len + 1);
+                if (len == 0)
                         continue;
-                if (block->pathc /* && block->signal */)
+                memcpy(s, block->curcmdout, len);
+                s += len;
+                if (block->pathc)
                         *(s++) = block->signal;
                 memcpy(s, delimiter, DELIMITERLENGTH);
                 s += DELIMITERLENGTH;
