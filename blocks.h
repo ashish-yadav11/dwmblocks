@@ -39,5 +39,6 @@ static Block blocks[] = {
         { NULL } /* just to mark the end of the array */
 };
 
-/* default delimiter string */
-#define DELIMITER                       "   "
+/* delimiter specified as an array of characters
+ * don't remove DELIMITERENDCHAR at the end */
+static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };

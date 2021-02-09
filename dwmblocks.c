@@ -9,18 +9,21 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
 
-#define CMDLENGTH                       50
-#define STTLENGTH                       256
+#define CMDOUTLENGTH                    50
+#define STATUSLENGTH                    256
+
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
+
+#define DELIMITERLENGTH                 sizeof delimiter
 
 typedef struct {
         char *const pathu;
         char *const pathc;
         const int interval;
         const int signal;
-        char cmdoutcur[CMDLENGTH + 1];
-        char cmdoutprv[CMDLENGTH + 1];
+        char curcmdout[CMDOUTLENGTH + 1];
+        char prvcmdout[CMDOUTLENGTH + 1];
 } Block;
 
 #include "blocks.h"
@@ -36,9 +39,7 @@ static void updateblock(Block *block, int sigval);
 static int updatestatus();
 static void writepid();
 
-static char statustext[STTLENGTH];
-static char *delim;
-static size_t delimlength;
+static char statustext[STATUSLENGTH + DELIMITERLENGTH];
 static Display *dpy;
 static sigset_t blocksigmask;
 
@@ -227,8 +228,8 @@ updateblock(Block *block, int sigval)
 
                         close(fd[1]);
                         do
-                                rd = read(fd[0], block->cmdoutcur + trd, CMDLENGTH - trd);
-                        while (rd > 0 && (trd += rd) < CMDLENGTH);
+                                rd = read(fd[0], block->curcmdout + trd, CMDOUTLENGTH - trd);
+                        while (rd > 0 && (trd += rd) < CMDOUTLENGTH);
                         if (rd == -1) {
                                 perror("updateblock - read");
                                 exit(1);
@@ -243,87 +244,39 @@ int
 updatestatus()
 {
         char *s = statustext;
-        char *c, *p; /* for cmdoutcur and cmdoutprv */
-        const char *d; /* for delimiter */
+        char *c, *p;
         Block *block = blocks;
 
         /* checking half of the function */
-        /* find the first non-empty block */
-        for (;; block++) {
-                /* all blocks are empty */
-                if (!block->pathu)
-                        return 0;
-                /* contents of the block changed */
-                if (*block->cmdoutcur != *block->cmdoutprv)
-                        goto update0;
-                /* skip delimiter handler for the first non-empty block */
-                if (*block->cmdoutcur != '\n' && *block->cmdoutcur != '\0')
-                        goto skipdelimc;
-        }
-        /* main loop */
         for (; block->pathu; block++) {
-                /* contents of the block changed */
-                if (*block->cmdoutcur != *block->cmdoutprv)
-                        goto update1;
-                /* delimiter handler */
-                if (*block->cmdoutcur != '\n' && *block->cmdoutcur != '\0')
-                        s += delimlength;
-                /* skip over empty blocks */
-                else
+                c = block->curcmdout, p = block->prvcmdout;
+                for (; *c == *p && *c != '\n' && *c != '\0'; c++, p++);
+                s += c - block->curcmdout;
+                if (*c != *p)
+                        goto update;
+                if (c == block->curcmdout)
                         continue;
-skipdelimc:
-                /* checking for the first byte has been done */
-                c = block->cmdoutcur + 1, p = block->cmdoutprv + 1;
-                for (; *c != '\n' && *c != '\0'; c++, p++)
-                        /* contents of the block changed */
-                        if (*c != *p) {
-                                s += c - block->cmdoutcur;
-                                goto update2;
-                        }
-                s += c - block->cmdoutcur;
-                /* byte containing info about signal number for the block */
-                if (block->pathc && block->signal)
+                if (block->pathc /* && block->signal */)
                         s++;
+                s += DELIMITERLENGTH;
         }
         return 0;
 
         /* updating half of the function */
-        /* find the first non-empty block */
-        for (;; block++) {
-                /* all blocks are empty */
-                if (!block->pathu)
-                        return 1;
-update0:
-                /* don't add delimiter before the first non-empty block */
-                if (*block->cmdoutcur != '\n' && *block->cmdoutcur != '\0')
-                        goto skipdelimu;
-                *block->cmdoutprv = *block->cmdoutcur;
-        }
-        /* main loop */
         for (; block->pathu; block++) {
-update1:
-                /* delimiter handler */
-                if (*block->cmdoutcur != '\n' && *block->cmdoutcur != '\0') {
-                        d = delim;
-                        while (*d != '\0')
-                                *(s++) = *(d++);
-                        *(s++) = DELIMITERENDCHAR;
-                /* skip over empty blocks */
-                } else {
-                        *block->cmdoutprv = *block->cmdoutcur;
-                        continue;
-                }
-skipdelimu:
-                c = block->cmdoutcur, p = block->cmdoutprv;
-update2:
-                do {
+                c = block->curcmdout, p = block->prvcmdout;
+update:
+                for (; *p = *c, *c != '\n' && *c != '\0'; c++, p++)
                         *(s++) = *c;
-                        *p = *c;
-                        c++, p++;
-                } while (*c != '\n' && *c != '\0');
-                if (block->pathc && block->signal)
+                if (c == block->curcmdout)
+                        continue;
+                if (block->pathc /* && block->signal */)
                         *(s++) = block->signal;
+                memcpy(s, delimiter, DELIMITERLENGTH);
+                s += DELIMITERLENGTH;
         }
+        if (s != statustext)
+                s -= DELIMITERLENGTH;
         *s = '\0';
         return 1;
 }
@@ -363,18 +316,11 @@ writepid()
 int
 main(int argc, char *argv[])
 {
-        writepid();
-        if (argc == 3 && strcmp(argv[1], "-d") == 0) {
-                delim = argv[2];
-                delimlength = strlen(delim) + 1;
-        } else {
-                delim = DELIMITER;
-                delimlength = sizeof DELIMITER;
-        }
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
                 return 1;
         }
+        writepid();
         setupsignals();
         statusloop();
         cleanup();

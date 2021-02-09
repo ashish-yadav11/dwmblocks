@@ -5,7 +5,7 @@ signaling, clickability, cursor hinting and color.
 
 # Usage
 
-`dwmblocks [-d <delimiter>]`
+`dwmblocks`
 
 # Modifying blocks
 
