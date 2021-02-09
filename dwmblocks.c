@@ -164,9 +164,8 @@ statusloop()
                         perror("statusloop - nanosleep");
                         exit(1);
                 }
-        i = 1;
         /* main loop */
-        for (;; i++) {
+        for (i = 1; ; i++) {
                 sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
                 for (Block *block = blocks; block->pathu; block++)
                         if (block->interval > 0 && i % block->interval == 0)
