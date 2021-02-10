@@ -36,9 +36,10 @@ static void sighandler(int sig, siginfo_t *si, void *ucontext);
 static void statusloop();
 static void termhandler(int sig);
 static void updateblock(Block *block, int sigval);
-static int updatestatus();
+static void updatestatus();
 static void writepid();
 
+static int dirty;
 static char statustext[STATUSLENGTH + DELIMITERLENGTH];
 static Display *dpy;
 static sigset_t blocksigmask;
@@ -78,7 +79,9 @@ cleanup()
 void
 setroot()
 {
-        if (updatestatus()) {
+        if (dirty) {
+                updatestatus();
+                dirty = 0;
                 XStoreName(dpy, DefaultRootWindow(dpy), statustext);
                 XSync(dpy, False);
         }
@@ -234,36 +237,23 @@ updateblock(Block *block, int sigval)
                                 exit(1);
                         }
                         close(fd[0]);
-                        block->curcmdout[block->curcmdout[trd - 1] == '\n' ? trd - 1 : trd] = '\0';
+                        block->curcmdout[block->curcmdout[trd - 1] == '\n' ? --trd : trd] = '\0';
+                        if (memcmp(block->curcmdout, block->prvcmdout, trd) != 0) {
+                                memcpy(block->prvcmdout, block->curcmdout, trd);
+                                dirty = 1;
+                        }
                 }
         }
 }
 
-/* returns whether block outputs have changed and updates statustext if they have */
-int
+void
 updatestatus()
 {
         char *s = statustext;
         size_t len;
-        Block *block = blocks;
 
-        /* checking half of the function */
-        for (; block->pathu; block++) {
-                len = strlen(block->curcmdout);
-                if (memcmp(block->curcmdout, block->prvcmdout, len + 1) != 0)
-                        goto update;
-                if (len == 0)
-                        continue;
-                s += len + (block->pathc ? 1 : 0) + DELIMITERLENGTH;
-        }
-        return 0;
-
-        /* updating half of the function */
-        for (; block->pathu; block++) {
-                len = strlen(block->curcmdout);
-update:
-                memcpy(block->prvcmdout, block->curcmdout, len + 1);
-                if (len == 0)
+        for (Block *block = blocks; block->pathu; block++) {
+                if ((len = strlen(block->curcmdout)) == 0)
                         continue;
                 memcpy(s, block->curcmdout, len);
                 s += len;
@@ -275,7 +265,6 @@ update:
         if (s != statustext)
                 s -= DELIMITERLENGTH;
         *s = '\0';
-        return 1;
 }
 
 void
