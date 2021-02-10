@@ -6,9 +6,9 @@ CFLAGS := -O3 -Wall -Wextra
 X11CFLAGS := $(shell pkg-config --cflags x11)
 X11LIBS := $(shell pkg-config --libs x11)
 
-all: dwmblocks/dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
+all: dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
-dwmblocks/dwmblocks: dwmblocks/dwmblocks.c config.h dwmblocks/block.h
+dwmblocks: dwmblocks.c config.h block.h
 	${CC} -o $@ -Wno-missing-field-initializers -Wno-unused-parameter ${CFLAGS} ${X11CFLAGS} $< ${X11LIBS}
 
 sigdwmblocks/sigdwmblocks: sigdwmblocks/sigdwmblocks.c
@@ -18,11 +18,11 @@ xgetrootname/xgetrootname: xgetrootname/xgetrootname.c
 	${CC} -o $@ ${CFLAGS} ${X11CFLAGS} $< ${X11LIBS}
 
 clean:
-	rm -f dwmblocks/dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
+	rm -f dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	install -m 0755 dwmblocks/dwmblocks ${DESTDIR}${PREFIX}/bin/dwmblocks
+	install -m 0755 dwmblocks ${DESTDIR}${PREFIX}/bin/dwmblocks
 	install -m 0755 sigdwmblocks/sigdwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks
 	install -m 0755 xgetrootname/xgetrootname ${DESTDIR}${PREFIX}/bin/xgetrootname
 
