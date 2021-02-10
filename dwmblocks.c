@@ -222,14 +222,13 @@ updateblock(Block *block, int sigval)
                         } else {
                                 if (block->curtext[trd - 1] == '\n')
                                         trd--;
-                                block->curtext[trd++] = block->signal;
-                                if (memcmp(block->curtext, block->prvtext, trd) != 0) {
-                                        memcpy(block->prvtext, block->curtext, trd);
+                                if (memcmp(block->curtext, block->prvtext, trd + 1) != 0) {
+                                        memcpy(block->prvtext, block->curtext, trd + 1);
                                         if (!dirtyblock || block < dirtyblock)
                                                 dirtyblock = block;
                                 }
-                                if (!block->pathc)
-                                        trd--;
+                                if (block->pathc)
+                                        block->curtext[trd++] = block->signal;
                                 memcpy(block->curtext + trd, delimiter, DELIMITERLENGTH);
                                 block->length = trd + DELIMITERLENGTH;
                         }
