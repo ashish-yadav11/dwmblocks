@@ -1,4 +1,11 @@
+/* macro for conveniently specifying pathu and pathc below */
 #define PATH(name)                      "/home/ashish/.local/projects/dwmblocks/blocks/"name
+
+/* buffer size for capturing output of the programs used for updating blocks */
+#define CMDOUTLENGTH                    50
+
+/* buffer size for status text */
+#define STATUSLENGTH                    256
 
 /* DELIMITERENDCHAR must be less than 32.
  * At max, DELIMITERENDCHAR - 1 number of clickable blocks will be allowed.
@@ -10,6 +17,12 @@
  * If you wish to change DELIMITERENDCHAR, don't forget to update its value in
    dwm.c and color codes in your pathu programs. */
 #define DELIMITERENDCHAR                10
+
+/* delimiter specified as an array of characters
+ * don't remove DELIMITERENDCHAR at the end */
+static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };
+
+#include "block.h"
 
 /* If interval of a block is set to 0, the block will only be updated once at
    startup.
@@ -39,7 +52,3 @@ static Block blocks[] = {
         { PATH("battery.sh"),           PATH("battery_button.sh"),      30,             3},
         { NULL } /* just to mark the end of the array */
 };
-
-/* delimiter specified as an array of characters
- * don't remove DELIMITERENDCHAR at the end */
-static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };

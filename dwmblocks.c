@@ -9,24 +9,12 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
 
-#define CMDOUTLENGTH                    50
-#define STATUSLENGTH                    256
-
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
 #define DELIMITERLENGTH                 sizeof delimiter
 
-typedef struct {
-        char *const pathu;
-        char *const pathc;
-        const int interval;
-        const int signal;
-        char curcmdout[CMDOUTLENGTH + 1];
-        char prvcmdout[CMDOUTLENGTH + 1];
-} Block;
-
-#include "blocks.h"
+#include "config.h"
 
 static void buttonhandler(int sig, siginfo_t *info, void *ucontext);
 static void cleanup();
@@ -39,8 +27,8 @@ static void updateblock(Block *block, int sigval);
 static void updatestatus();
 static void writepid();
 
-static int dirty;
 static char statustext[STATUSLENGTH + DELIMITERLENGTH];
+static Block *dirtyblock;
 static Display *dpy;
 static sigset_t blocksigmask;
 
@@ -79,9 +67,9 @@ cleanup()
 void
 setroot()
 {
-        if (dirty) {
+        if (dirtyblock) {
                 updatestatus();
-                dirty = 0;
+                dirtyblock = NULL;
                 XStoreName(dpy, DefaultRootWindow(dpy), statustext);
                 XSync(dpy, False);
         }
@@ -230,17 +218,33 @@ updateblock(Block *block, int sigval)
 
                         close(fd[1]);
                         do
-                                rd = read(fd[0], block->curcmdout + trd, CMDOUTLENGTH - trd);
+                                rd = read(fd[0], block->curtext + trd, CMDOUTLENGTH - trd);
                         while (rd > 0 && (trd += rd) < CMDOUTLENGTH);
                         if (rd == -1) {
                                 perror("updateblock - read");
                                 exit(1);
                         }
                         close(fd[0]);
-                        block->curcmdout[block->curcmdout[trd - 1] == '\n' ? --trd : trd] = '\0';
-                        if (memcmp(block->curcmdout, block->prvcmdout, trd) != 0) {
-                                memcpy(block->prvcmdout, block->curcmdout, trd);
-                                dirty = 1;
+                        if (trd == 0) {
+                                if (block->prvtext[0] != '\0') {
+                                        block->prvtext[0] = '\0';
+                                        if (!dirtyblock || block < dirtyblock)
+                                                dirtyblock = block;
+                                }
+                                block->len = 0;
+                        } else {
+                                if (block->curtext[trd - 1] == '\n')
+                                        trd--;
+                                block->curtext[trd++] = block->signal;
+                                if (memcmp(block->curtext, block->prvtext, trd) != 0) {
+                                        memcpy(block->prvtext, block->curtext, trd);
+                                        if (!dirtyblock || block < dirtyblock)
+                                                dirtyblock = block;
+                                }
+                                if (!block->pathc)
+                                        trd--;
+                                memcpy(block->curtext + trd, delimiter, DELIMITERLENGTH);
+                                block->len = trd + DELIMITERLENGTH;
                         }
                 }
         }
@@ -250,21 +254,17 @@ void
 updatestatus()
 {
         char *s = statustext;
-        size_t len;
 
-        for (Block *block = blocks; block->pathu; block++) {
-                if ((len = strlen(block->curcmdout)) == 0)
-                        continue;
-                memcpy(s, block->curcmdout, len);
-                s += len;
-                if (block->pathc)
-                        *(s++) = block->signal;
-                memcpy(s, delimiter, DELIMITERLENGTH);
-                s += DELIMITERLENGTH;
+        for (Block *block = blocks; block < dirtyblock; block++)
+                s += block->len;
+        for (Block *block = dirtyblock; block->pathu; block++) {
+                memcpy(s, block->curtext, block->len);
+                s += block->len;
         }
         if (s != statustext)
-                s -= DELIMITERLENGTH;
-        *s = '\0';
+                *(s - DELIMITERLENGTH) = '\0';
+        else
+                *s = '\0';
 }
 
 void
