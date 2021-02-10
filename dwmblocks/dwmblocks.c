@@ -18,7 +18,6 @@
 
 static void buttonhandler(int sig, siginfo_t *info, void *ucontext);
 static void cleanup();
-static void setroot();
 static void setupsignals();
 static void sighandler(int sig, siginfo_t *si, void *ucontext);
 static void statusloop();
@@ -27,7 +26,6 @@ static void updateblock(Block *block, int sigval);
 static void updatestatus();
 static void writepid();
 
-static char statustext[STATUSLENGTH + DELIMITERLENGTH];
 static Block *dirtyblock;
 static Display *dpy;
 static sigset_t blocksigmask;
@@ -62,17 +60,6 @@ cleanup()
         unlink(LOCKFILE);
         XStoreName(dpy, DefaultRootWindow(dpy), "");
         XCloseDisplay(dpy);
-}
-
-void
-setroot()
-{
-        if (dirtyblock) {
-                updatestatus();
-                dirtyblock = NULL;
-                XStoreName(dpy, DefaultRootWindow(dpy), statustext);
-                XSync(dpy, False);
-        }
 }
 
 void
@@ -133,7 +120,7 @@ sighandler(int sig, siginfo_t *info, void *ucontext)
         for (Block *block = blocks; block->pathu; block++)
                 if (block->signal == sig)
                         updateblock(block, info->si_value.sival_int);
-        setroot();
+        updatestatus();
 }
 
 void
@@ -147,7 +134,7 @@ statusloop()
         for (Block *block = blocks; block->pathu; block++)
                 if (block->interval >= 0)
                         updateblock(block, NILL);
-        setroot();
+        updatestatus();
         sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
         t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
         while (nanosleep(&t, &t) == -1)
@@ -161,7 +148,7 @@ statusloop()
                 for (Block *block = blocks; block->pathu; block++)
                         if (block->interval > 0 && i % block->interval == 0)
                                 updateblock(block, NILL);
-                setroot();
+                updatestatus();
                 sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
                 t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
                 while (nanosleep(&t, &t) == -1);
@@ -253,8 +240,11 @@ updateblock(Block *block, int sigval)
 void
 updatestatus()
 {
+        static char statustext[STATUSLENGTH + DELIMITERLENGTH];
         char *s = statustext;
 
+        if (!dirtyblock)
+                return;
         for (Block *block = blocks; block < dirtyblock; block++)
                 s += block->length;
         for (Block *block = dirtyblock; block->pathu; block++) {
@@ -262,6 +252,10 @@ updatestatus()
                 s += block->length;
         }
         s[s == statustext ? 0 : -DELIMITERLENGTH] = '\0';
+        dirtyblock = NULL;
+
+        XStoreName(dpy, DefaultRootWindow(dpy), statustext);
+        XSync(dpy, False);
 }
 
 void
