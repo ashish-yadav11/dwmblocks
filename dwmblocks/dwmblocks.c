@@ -14,7 +14,7 @@
 
 #define DELIMITERLENGTH                 sizeof delimiter
 
-#include "config.h"
+#include "../config.h"
 
 static void buttonhandler(int sig, siginfo_t *info, void *ucontext);
 static void cleanup();
