@@ -1,5 +1,6 @@
 #!/bin/sh
-# autostart this on startup for volume block to work
+# This script should be autostarted on startup
+# It signals volume block to update on audio related events
 pactl subscribe |
     while read -r output ; do
         case $output in
