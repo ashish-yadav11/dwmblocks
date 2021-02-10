@@ -22,7 +22,7 @@
  * don't remove DELIMITERENDCHAR at the end */
 static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };
 
-#include "dwmblocks/block.h"
+#include "block.h"
 
 /* If interval of a block is set to 0, the block will only be updated once at
    startup.
