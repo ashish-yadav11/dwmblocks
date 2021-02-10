@@ -261,10 +261,7 @@ updatestatus()
                 memcpy(s, block->curtext, block->length);
                 s += block->length;
         }
-        if (s != statustext)
-                *(s - DELIMITERLENGTH) = '\0';
-        else
-                *s = '\0';
+        s[s == statustext ? 0 : -DELIMITERLENGTH] = '\0';
 }
 
 void
