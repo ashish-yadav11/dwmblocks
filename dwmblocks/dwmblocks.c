@@ -231,7 +231,7 @@ updateblock(Block *block, int sigval)
                                         if (!dirtyblock || block < dirtyblock)
                                                 dirtyblock = block;
                                 }
-                                block->len = 0;
+                                block->length = 0;
                         } else {
                                 if (block->curtext[trd - 1] == '\n')
                                         trd--;
@@ -244,7 +244,7 @@ updateblock(Block *block, int sigval)
                                 if (!block->pathc)
                                         trd--;
                                 memcpy(block->curtext + trd, delimiter, DELIMITERLENGTH);
-                                block->len = trd + DELIMITERLENGTH;
+                                block->length = trd + DELIMITERLENGTH;
                         }
                 }
         }
@@ -256,10 +256,10 @@ updatestatus()
         char *s = statustext;
 
         for (Block *block = blocks; block < dirtyblock; block++)
-                s += block->len;
+                s += block->length;
         for (Block *block = dirtyblock; block->pathu; block++) {
-                memcpy(s, block->curtext, block->len);
-                s += block->len;
+                memcpy(s, block->curtext, block->length);
+                s += block->length;
         }
         if (s != statustext)
                 *(s - DELIMITERLENGTH) = '\0';
