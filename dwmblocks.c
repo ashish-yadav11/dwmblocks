@@ -241,12 +241,13 @@ updatestatus()
 {
         static char statustext[STATUSLENGTH + DELIMITERLENGTH];
         char *s = statustext;
+        Block *block;
 
         if (!dirtyblock)
                 return;
-        for (Block *block = blocks; block < dirtyblock; block++)
+        for (block = blocks; block < dirtyblock; block++)
                 s += block->length;
-        for (Block *block = dirtyblock; block->pathu; block++) {
+        for (; block->pathu; block++) {
                 memcpy(s, block->curtext, block->length);
                 s += block->length;
         }
