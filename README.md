@@ -53,7 +53,8 @@ A tiny program to get the current root name. May prove helpful in debugging.
 Clone the repository and run
 ```
 cd dwmblocks
-sudo make install clean
+make
+sudo make install
 ```
 
 # Acknowledgements
