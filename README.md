@@ -7,13 +7,13 @@ signaling, clickability, cursor hinting and color.
 
 `dwmblocks`
 
-# Modifying blocks
+# Configuration
 
-Blocks are added and removed by editing [config.h](config.h) file. Some other
-configurations can also be done through the file. Read it for more info.
+Refer to [config.h](config.def.h). It allows addition/removal of blocks and a
+few other configurations.
 
-> Change the PATH macro defined at the top of the file. It should point to the
-> folder where your scripts are saved.
+> `make`, the first time you run it, or `make config.h` will create config.h by
+> copying [config.def.h](config.def.h).
 
 > The provided blocks use siji font for icons.
 
