@@ -105,7 +105,7 @@ setupsignals()
         sigaction(SIGRTMIN, &sa, NULL);
 
         /* to handle update signals for individual blocks */
-        sa.sa_flags |= SA_NODEFER;
+        sa.sa_flags = SA_NODEFER | SA_RESTART | SA_SIGINFO;
         sa.sa_mask = blocksigmask;
         sa.sa_sigaction = sighandler;
         for (Block *block = blocks; block->pathu; block++)
