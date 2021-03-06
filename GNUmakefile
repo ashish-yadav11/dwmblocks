@@ -1,10 +1,10 @@
-PREFIX := /usr/local
+PREFIX = /usr/local
 
-CC := gcc
-CFLAGS := -O3 -Wall -Wextra
+CC = gcc
+CFLAGS = -O3 -Wall -Wextra
 
-X11CFLAGS := $(shell pkg-config --cflags x11)
-X11LIBS := $(shell pkg-config --libs x11)
+X11CFLAGS = $(shell pkg-config --cflags x11)
+X11LIBS = $(shell pkg-config --libs x11)
 
 all: dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
