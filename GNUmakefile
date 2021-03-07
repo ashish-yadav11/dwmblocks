@@ -12,11 +12,16 @@ dwmblocks: dwmblocks.c config.h block.h
 	${CC} -o $@ -Wno-missing-field-initializers -Wno-unused-parameter ${CFLAGS} ${X11CFLAGS} $< ${X11LIBS}
 
 E0BLOCKS = $(abspath blocks)
-# two level escaping of '\', one for sed and one for C
+# two level escaping of `\', one for sed and one for C
 E1BLOCKS = $(subst \,\\\\,${E0BLOCKS})
-# escaping special character '&' and delimiter '=' for sed
-E2BLOCKS = $(subst &,\&,${E1BLOCKS})
-EFBLOCKS = $(subst =,\=,${E2BLOCKS})
+# escaping special character `&' and delimiter `=' for sed
+E3BLOCKS = $(subst &,\&,${E2BLOCKS})
+E4BLOCKS = $(subst =,\=,${E3BLOCKS})
+# escaping `"' for C
+E2BLOCKS = $(subst ",\\",${E1BLOCKS})
+# escaping `'' for shell
+EFBLOCKS = $(subst ','\'',${E4BLOCKS})
+# this comment is a workaround for syntax highlighting bug in vim')
 
 config.h:
 	sed '2s=<path to the folder containing block scripts>=${EFBLOCKS}=' config.def.h >$@
