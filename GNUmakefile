@@ -38,13 +38,14 @@ xgetrootname/xgetrootname: xgetrootname/xgetrootname.c
 clean:
 	rm -f dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
+BINDIR = ${DESTDIR}${PREFIX}/bin
+
 install: all
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	install -m 0755 dwmblocks ${DESTDIR}${PREFIX}/bin/dwmblocks
-	install -m 0755 sigdwmblocks/sigdwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks
-	install -m 0755 xgetrootname/xgetrootname ${DESTDIR}${PREFIX}/bin/xgetrootname
+	mkdir -p ${BINDIR}
+	cp -f dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname ${BINDIR}
+	chmod 755 ${BINDIR}/dwmblocks ${BINDIR}/sigdwmblocks ${BINDIR}/xgetrootname
 
 uninstall:
-	rm -f ${DESTDIR}${PREFIX}/bin/dwmblocks ${DESTDIR}${PREFIX}/bin/sigdwmblocks ${DESTDIR}${PREFIX}/bin/xgetrootname
+	rm -f ${BINDIR}/dwmblocks ${BINDIR}/sigdwmblocks ${BINDIR}/xgetrootname
 
 .PHONY: all clean install uninstall
