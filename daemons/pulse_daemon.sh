@@ -1,5 +1,5 @@
 #!/bin/sh
-# This script should be autostarted on startup
+# This script should be autostarted with X session
 # It signals volume block to update on audio related events
 pactl subscribe |
     while read -r output ; do

@@ -1,4 +1,7 @@
 #!/bin/sh
+# This script parses the output of `pacmd list-sinks' to find volume and mute
+# status of the default audio sink and whether headphones are plugged in or not
+# Also see ../daemons/pulse_daemon.sh
 pacmd list-sinks |
     awk '
         BEGIN {
