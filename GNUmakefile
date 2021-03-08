@@ -15,10 +15,10 @@ E0BLOCKS = $(abspath blocks)
 # two level escaping of `\', one for sed and one for C
 E1BLOCKS = $(subst \,\\\\,${E0BLOCKS})
 # escaping special character `&' and delimiter `=' for sed
-E3BLOCKS = $(subst &,\&,${E2BLOCKS})
-E4BLOCKS = $(subst =,\=,${E3BLOCKS})
+E2BLOCKS = $(subst &,\&,${E1BLOCKS})
+E3BLOCKS = $(subst =,\=,${E2BLOCKS})
 # escaping `"' for C
-E2BLOCKS = $(subst ",\\",${E1BLOCKS})
+E4BLOCKS = $(subst ",\\",${E3BLOCKS})
 # escaping `'' for shell
 EFBLOCKS = $(subst ','\'',${E4BLOCKS})
 # this comment is a workaround for syntax highlighting bug in vim')
