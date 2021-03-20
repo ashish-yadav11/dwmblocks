@@ -31,7 +31,7 @@ that block is executed with the first argument specifying which button was
 clicked (1 for left, 2 for middle and 3 for right).
 
 Colored output is inspired by statuscolors patch for dwm. To add colors, have
-your programs for the blocks output raw characters from `\x0b` to `\x31`. `\x0b`
+your programs for the blocks output raw characters from `\x0b` to `\x1f`. `\x0b`
 in status text switches active colorscheme to the first one in the colors array
 defined in dwm's config.h and so on. See
 [statuscolors patch for dwm](https://dwm.suckless.org/patches/statuscolors/)
