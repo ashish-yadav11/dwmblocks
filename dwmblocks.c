@@ -12,7 +12,7 @@
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
-#define DELIMITERLENGTH                 sizeof delimiter
+#define DELIMITERLENGTH                 (sizeof delimiter)
 #define STATUSLENGTH                    ((sizeof blocks / sizeof blocks[0]) * (CMDOUTLENGTH + DELIMITERLENGTH))
 
 #include "config.h"
@@ -213,21 +213,18 @@ updateblock(Block *block, int sigval)
                                 exit(1);
                         }
                         close(fd[0]);
-                        if (trd == 0) {
-                                if (block->prvtext[0] != '\0') {
-                                        block->prvtext[0] = '\0';
-                                        if (!dirtyblock || block < dirtyblock)
-                                                dirtyblock = block;
-                                }
+
+                        block->curtext[trd] = '\0';
+                        if (memcmp(block->curtext, block->prvtext, trd + 1) != 0) {
+                                memcpy(block->prvtext, block->curtext, trd + 1);
+                                if (!dirtyblock || block < dirtyblock)
+                                        dirtyblock = block;
+                        }
+                        if (trd == 0)
                                 block->length = 0;
-                        } else {
+                        else {
                                 if (block->curtext[trd - 1] == '\n')
                                         trd--;
-                                if (memcmp(block->curtext, block->prvtext, trd + 1) != 0) {
-                                        memcpy(block->prvtext, block->curtext, trd + 1);
-                                        if (!dirtyblock || block < dirtyblock)
-                                                dirtyblock = block;
-                                }
                                 if (block->pathc)
                                         block->curtext[trd++] = block->signal;
                                 memcpy(block->curtext + trd, delimiter, DELIMITERLENGTH);
