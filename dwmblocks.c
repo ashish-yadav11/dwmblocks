@@ -12,8 +12,10 @@
 #define NILL                            INT_MIN
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
+#define LENGTH(X)                       (sizeof X / sizeof X[0])
+
 #define DELIMITERLENGTH                 (sizeof delimiter)
-#define STATUSLENGTH                    ((sizeof blocks / sizeof blocks[0]) * (CMDOUTLENGTH + DELIMITERLENGTH))
+#define STATUSLENGTH                    (LENGTH(blocks) * (CMDOUTLENGTH + DELIMITERLENGTH) + 1)
 
 #include "config.h"
 
