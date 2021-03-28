@@ -13,6 +13,7 @@
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
 #define DELIMITERLENGTH                 sizeof delimiter
+#define STATUSLENGTH                    ((sizeof blocks / sizeof blocks[0]) * (CMDOUTLENGTH + DELIMITERLENGTH))
 
 #include "config.h"
 
@@ -239,7 +240,7 @@ updateblock(Block *block, int sigval)
 void
 updatestatus()
 {
-        static char statustext[STATUSLENGTH + DELIMITERLENGTH];
+        static char statustext[STATUSLENGTH];
         char *s = statustext;
         Block *block;
 

@@ -4,9 +4,6 @@
 /* buffer size for capturing output of the programs used for updating blocks */
 #define CMDOUTLENGTH                    50
 
-/* buffer size for status text */
-#define STATUSLENGTH                    256
-
 /* DELIMITERENDCHAR must be less than 32.
  * At max, DELIMITERENDCHAR - 1 number of clickable blocks are allowed.
  * Raw characters larger than DELIMITERENDCHAR and smaller than ' ' in ASCII
