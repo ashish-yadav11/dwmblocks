@@ -73,14 +73,22 @@ setupsignals()
 {
         struct sigaction sa;
 
-        /* populate blocksigmask */
+        /* populate blocksigmask and check validity of signals */
         sigemptyset(&blocksigmask);
         sigaddset(&blocksigmask, SIGHUP);
         sigaddset(&blocksigmask, SIGINT);
         sigaddset(&blocksigmask, SIGTERM);
-        for (Block *block = blocks; block->pathu; block++)
-                if (block->signal > 0)
-                        sigaddset(&blocksigmask, SIGRTMIN + block->signal);
+        for (Block *block = blocks; block->pathu; block++) {
+                if (block->signal <= 0)
+                        continue;
+                if (block->signal > SIGRTMAX - SIGRTMIN) {
+                        fprintf(stderr, "Error: SIGRTMIN + %d exceeds SIGRTMAX.\n", block->signal);
+                        unlink(LOCKFILE);
+                        XCloseDisplay(dpy);
+                        exit(2);
+                }
+                sigaddset(&blocksigmask, SIGRTMIN + block->signal);
+        }
 
         /* setup signal handlers */
         /* to handle HUP, INT and TERM */
@@ -165,11 +173,13 @@ updateblock(Block *block, int sigval)
 
         if (pipe(fd) == -1) {
                 perror("updateblock - pipe");
+                cleanup();
                 exit(1);
         }
         switch (fork()) {
                 case -1:
                         perror("updateblock - fork");
+                        cleanup();
                         exit(1);
                 case 0:
                         close(ConnectionNumber(dpy));
@@ -205,6 +215,7 @@ updateblock(Block *block, int sigval)
                         while (rd > 0 && (trd += rd) < CMDOUTLENGTH);
                         if (rd == -1) {
                                 perror("updateblock - read");
+                                cleanup();
                                 exit(1);
                         }
                         close(fd[0]);
@@ -286,11 +297,12 @@ writepid()
 int
 main(int argc, char *argv[])
 {
+        writepid();
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
+                unlink(LOCKFILE);
                 return 1;
         }
-        writepid();
         setupsignals();
         statusloop();
         cleanup();
