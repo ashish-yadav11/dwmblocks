@@ -139,7 +139,7 @@ statusloop()
                         updateblock(block, NILL);
         updatestatus();
         sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
-        t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
+        t = interval;
         while (nanosleep(&t, &t) == -1)
                 if (errno != EINTR) {
                         perror("statusloop - nanosleep");
@@ -153,7 +153,7 @@ statusloop()
                                 updateblock(block, NILL);
                 updatestatus();
                 sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
-                t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
+                t = interval;
                 while (nanosleep(&t, &t) == -1);
         }
 }
