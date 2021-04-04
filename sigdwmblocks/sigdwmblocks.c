@@ -10,23 +10,26 @@
 #define LOCKFILE                        "/tmp/dwmblocks.pid"
 
 int
-parsesignal(char *arg, int *s)
+parsesignal(char *arg)
 {
         int i = 0;
 
         for (; *arg != '\0'; arg++)
                 if (*arg >= '0' && *arg <= '9')
                         i = 10 * i + *arg - '0';
-                else
-                        return 0;
-        if ((i += SIGRTMIN) > SIGRTMAX)
-                return 0;
-        *s = i;
-        return 1;
+                else {
+                        fputs("Usage: sigdwmblocks <signal> [<sigval>]\n", stderr);
+                        exit(2);
+                }
+        if ((i += SIGRTMIN) > SIGRTMAX) {
+                fputs("Error: <signal> out of range.\n", stderr);
+                exit(2);
+        }
+        return i;
 }
 
 int
-parsesigval(char *arg, int *v)
+parsesigval(char *arg)
 {
         int s = 1, i = 0;
 
@@ -38,10 +41,11 @@ parsesigval(char *arg, int *v)
         for (; *arg != '\0'; arg++)
                 if (*arg >= '0' && *arg <= '9')
                         i = 10 * i + *arg - '0';
-                else
-                        return 0;
-        *v = s * i;
-        return 1;
+                else {
+                        fputs("Usage: sigdwmblocks <signal> [<sigval>]\n", stderr);
+                        exit(2);
+                }
+        return s * i;
 }
 
 void
@@ -89,16 +93,12 @@ main(int argc, char *argv[])
         int sig;
         union sigval sv;
 
-        if (argc > 1 && parsesignal(argv[1], &sig)) {
-                if (argc == 2) {
-                        sv.sival_int = NILL;
-                        sendsignal(sig, sv);
-                        return 0;
-                } else if (argc == 3 && parsesigval(argv[2], &(sv.sival_int))) {
-                        sendsignal(sig, sv);
-                        return 0;
-                }
+        if (argc < 2 || argc > 3) {
+                fputs("Usage: sigdwmblocks <signal> [<sigval>]\n", stderr);
+                return 2;
         }
-        fprintf(stderr, "Usage: %s <signal> [<sigval>]\n", argv[0]);
-        return 2;
+        sig = parsesignal(argv[1]);
+        sv.sival_int = argc == 2 ? NILL : parsesigval(argv[2]);
+        sendsignal(sig, sv);
+        return 0;
 }
