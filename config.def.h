@@ -37,8 +37,9 @@ static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };
             one newline character at the end)
  * pathc - path of the program used for handling clicks on the block */
 
-/* 1 interval = <first entry> seconds, <second entry> nanoseconds */
-static const struct timespec interval = { 1, 0 };
+/* 1 interval = INTERVALs seconds, INTERVALn nanoseconds */
+#define INTERVALs                       1
+#define INTERVALn                       0
 
 static Block blocks[] = {
 /*      pathu                           pathc                           interval        signal */

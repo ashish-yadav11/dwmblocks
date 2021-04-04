@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+_Static_assert(INTERVALs >= 0, "INTERVALs must be greater than or equal to 0");
+_Static_assert(INTERVALn >= 0 && INTERVALn <= 999999999, "INTERVALn must be between 0 and 999999999");
+
 static void buttonhandler(int sig, siginfo_t *info, void *ucontext);
 static void cleanup();
 static void setupsignals();
@@ -132,29 +135,19 @@ statusloop()
         int i;
         struct timespec t;
 
-        /* first run */
         sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
         for (Block *block = blocks; block->pathu; block++)
                 if (block->interval >= 0)
                         updateblock(block, NILL);
-        updatestatus();
-        sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
-        t = interval;
-        while (nanosleep(&t, &t) == -1)
-                if (errno != EINTR) {
-                        perror("statusloop - nanosleep");
-                        exit(1);
-                }
-        /* main loop */
         for (i = 1; ; i++) {
+                updatestatus();
+                sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
+                t.tv_sec = INTERVALs, t.tv_nsec = INTERVALn;
+                while (nanosleep(&t, &t) == -1);
                 sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
                 for (Block *block = blocks; block->pathu; block++)
                         if (block->interval > 0 && i % block->interval == 0)
                                 updateblock(block, NILL);
-                updatestatus();
-                sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
-                t = interval;
-                while (nanosleep(&t, &t) == -1);
         }
 }
 
