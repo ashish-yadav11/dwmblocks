@@ -8,11 +8,8 @@ X11LIBS = $(shell pkg-config --libs x11)
 
 all: dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
-dwmblocks: dwmblocks.c blocks config.h block.h
+dwmblocks: dwmblocks.c config.h block.h
 	${CC} -o $@ -Wno-missing-field-initializers -Wno-unused-parameter ${CFLAGS} ${X11CFLAGS} $< ${X11LIBS}
-
-blocks:
-	cp -r blocks.def $@
 
 E0BLOCKS = $(abspath blocks)
 # two level escaping of `\', one for sed and one for C
@@ -27,6 +24,7 @@ EFBLOCKS = $(subst ','\'',${E4BLOCKS})
 # this comment is a workaround for syntax highlighting bug in vim')
 
 config.h:
+	[ -d blocks ] || cp -R blocks.def blocks
 	sed '2s=<path to the folder containing block scripts>=${EFBLOCKS}=' config.def.h >$@
 
 sigdwmblocks/sigdwmblocks: sigdwmblocks/sigdwmblocks.c
