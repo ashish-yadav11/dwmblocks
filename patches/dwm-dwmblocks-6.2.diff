@@ -1,6 +1,6 @@
 diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
 --- dwm-6.2-ori/config.def.h	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/config.def.h	2021-01-25 16:40:17.983232710 +0530
++++ dwm-6.2/config.def.h	2020-12-27 19:45:35.127385861 +0530
 @@ -12,10 +12,26 @@
  static const char col_gray3[]       = "#bbbbbb";
  static const char col_gray4[]       = "#eeeeee";
@@ -43,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2019-02-02 18:25:28.000000000 +0530
-+++ dwm-6.2/dwm.c	2021-01-25 16:40:58.116619683 +0530
++++ dwm-6.2/dwm.c	2021-06-21 17:50:13.520152649 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -59,7 +59,7 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +#define TTEXTW(X)               (drw_fontset_getwidth(drw, (X)))
 +
 +#define STATUSLENGTH            256
-+#define DWMBLOCKSLOCKFILE       "/tmp/dwmblocks.pid"
++#define DWMBLOCKSLOCKFILE       "/var/local/dwmblocks/dwmblocks.pid"
 +#define DELIMITERENDCHAR        10
 +#define LSPAD                   (lrpad / 2) /* padding on left side of status text */
 +#define RSPAD                   (lrpad / 2) /* padding on right side of status text */

@@ -37,13 +37,17 @@ clean:
 	rm -f dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
 BINDIR = ${DESTDIR}${PREFIX}/bin
+PIDDIR = /var/local/dwmblocks
 
 install: all
 	mkdir -p ${BINDIR}
 	cp -f dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname ${BINDIR}
 	chmod 755 ${BINDIR}/dwmblocks ${BINDIR}/sigdwmblocks ${BINDIR}/xgetrootname
+	mkdir -p ${PIDDIR}
+	chmod 777 ${PIDDIR}
 
 uninstall:
 	rm -f ${BINDIR}/dwmblocks ${BINDIR}/sigdwmblocks ${BINDIR}/xgetrootname
+	rm -df ${PIDDIR} || exit 0
 
 .PHONY: all clean install uninstall

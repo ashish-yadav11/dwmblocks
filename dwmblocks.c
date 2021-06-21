@@ -10,7 +10,7 @@
 #include <X11/Xlib.h>
 
 #define NILL                            INT_MIN
-#define LOCKFILE                        "/tmp/dwmblocks.pid"
+#define LOCKFILE                        "/var/local/dwmblocks/dwmblocks.pid"
 
 #define LENGTH(X)                       (sizeof X / sizeof X[0])
 
