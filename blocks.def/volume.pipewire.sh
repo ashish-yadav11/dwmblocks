@@ -1,6 +1,6 @@
 #!/bin/sh
 # (for pipewire users)
-# This script parses the output of `pacmd list-sinks' to find volume and mute
+# This script parses the output of `pactl list sinks' to find volume and mute
 # status of the default audio sink and whether headphones are plugged in or not
 # Also see ../daemons/pulse_daemon.sh
 sink=$(pactl info | awk '$1 == "Default" && $2 == "Sink:" {print $3}')
