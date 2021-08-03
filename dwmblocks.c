@@ -51,7 +51,6 @@ buttonhandler(int sig, siginfo_t *info, void *ucontext)
                                         char button[] = { '0' + (info->si_value.sival_int & 0xff), '\0' };
                                         char *arg[] = { block->pathc, button, NULL };
 
-                                        close(ConnectionNumber(dpy));
                                         setsid();
                                         execv(arg[0], arg);
                                         perror("buttonhandler - child - execv");
@@ -182,7 +181,6 @@ updateblock(Block *block, int sigval)
                         cleanup();
                         exit(1);
                 case 0:
-                        close(ConnectionNumber(dpy));
                         close(fd[0]);
                         if (fd[1] != STDOUT_FILENO) {
                                 if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO) {
@@ -298,12 +296,16 @@ writepid()
 int
 main(int argc, char *argv[])
 {
+        int xfd;
+
         writepid();
         if (!(dpy = XOpenDisplay(NULL))) {
                 fputs("Error: could not open display.\n", stderr);
                 unlink(LOCKFILE);
                 return 1;
         }
+        xfd = ConnectionNumber(dpy);
+        fcntl(xfd, F_SETFD, fcntl(xfd, F_GETFD) | FD_CLOEXEC);
         setupsignals();
         statusloop();
         cleanup();
