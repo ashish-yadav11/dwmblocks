@@ -32,6 +32,7 @@ static void updateblock(Block *block, int sigval);
 static void updatestatus();
 static void writepid();
 
+static int lfd;
 static Block *dirtyblock;
 static Display *dpy;
 static sigset_t blocksigmask;
@@ -51,6 +52,7 @@ buttonhandler(int sig, siginfo_t *info, void *ucontext)
                                         char button[] = { '0' + (info->si_value.sival_int & 0xff), '\0' };
                                         char *arg[] = { block->pathc, button, NULL };
 
+                                        close(lfd);
                                         close(ConnectionNumber(dpy));
                                         setsid();
                                         execv(arg[0], arg);
@@ -182,6 +184,7 @@ updateblock(Block *block, int sigval)
                         cleanup();
                         exit(1);
                 case 0:
+                        close(lfd);
                         close(ConnectionNumber(dpy));
                         close(fd[0]);
                         if (fd[1] != STDOUT_FILENO) {
@@ -265,10 +268,9 @@ updatestatus()
 void
 writepid()
 {
-        int fd;
         struct flock fl;
 
-        if ((fd = open(LOCKFILE, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) == -1) {
+        if ((lfd = open(LOCKFILE, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) == -1) {
                 perror("writepid - open");
                 exit(1);
         }
@@ -276,7 +278,7 @@ writepid()
         fl.l_whence = SEEK_SET;
         fl.l_start = 0;
         fl.l_len = 0;
-        if (fcntl(fd, F_SETLK, &fl) == -1) {
+        if (fcntl(lfd, F_SETLK, &fl) == -1) {
                 if (errno == EACCES || errno == EAGAIN) {
                         fputs("Error: another instance of dwmblocks is already running.\n", stderr);
                         exit(2);
@@ -284,11 +286,11 @@ writepid()
                 perror("writepid - fcntl");
                 exit(1);
         }
-        if (ftruncate(fd, 0) == -1) {
+        if (ftruncate(lfd, 0) == -1) {
                 perror("writepid - ftruncate");
                 exit(1);
         }
-        if (dprintf(fd, "%ld", (long)getpid()) < 0) {
+        if (dprintf(lfd, "%ld", (long)getpid()) < 0) {
                 perror("writepid - dprintf");
                 exit(1);
         }

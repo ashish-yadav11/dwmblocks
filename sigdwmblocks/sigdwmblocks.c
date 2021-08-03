@@ -72,7 +72,7 @@ sendsignal(int sig, union sigval sv)
                 exit(1);
         }
         close(fd);
-        if (fl.l_type == F_UNLCK) {
+        if (fl.l_type != F_WRLCK) {
                 fputs("Error: no running instance of dwmblocks.\n", stderr);
                 exit(3);
         }
