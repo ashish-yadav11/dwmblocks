@@ -2,7 +2,7 @@
 #include <X11/Xlib.h>
 
 int
-main()
+main(void)
 {
         char *name;
         Display *dpy;
