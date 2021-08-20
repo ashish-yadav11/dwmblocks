@@ -16,7 +16,7 @@
 #define DELIMITERENDCHAR                10
 
 /* delimiter specified as an array of characters
- * don't remove DELIMITERENDCHAR at the end */
+ * (don't remove DELIMITERENDCHAR at the end) */
 static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };
 
 #include "block.h"

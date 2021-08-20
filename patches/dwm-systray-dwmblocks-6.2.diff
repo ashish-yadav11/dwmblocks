@@ -43,7 +43,7 @@ diff -ruN dwm-6.2-ori/config.def.h dwm-6.2/config.def.h
  	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 --- dwm-6.2-ori/dwm.c	2020-08-17 23:51:19.057243495 +0530
-+++ dwm-6.2/dwm.c	2021-08-03 19:19:36.009135193 +0530
++++ dwm-6.2/dwm.c	2021-08-20 20:59:38.894111552 +0530
 @@ -40,6 +40,7 @@
  #include <X11/extensions/Xinerama.h>
  #endif /* XINERAMA */
@@ -427,11 +427,11 @@ diff -ruN dwm-6.2-ori/dwm.c dwm-6.2/dwm.c
 +                        else
 +                                *(sts++) = *rst;
 +                *stp = *stc = *sts = '\0';
-+                wstext = TEXTW(stextp) + LSPAD + RSPAD;
++                wstext = TTEXTW(stextp) + LSPAD + RSPAD;
 +        } else {
 +                strcpy(stextc, "dwm-"VERSION);
 +                strcpy(stexts, stextc);
-+                wstext = TEXTW(stextc) + LSPAD + RSPAD;
++                wstext = TTEXTW(stextc) + LSPAD + RSPAD;
 +        }
 +        drawbar(selmon);
  }
