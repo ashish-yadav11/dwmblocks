@@ -21,7 +21,6 @@ E3BLOCKS = $(subst =,\=,${E2BLOCKS})
 E4BLOCKS = $(subst ",\\",${E3BLOCKS})
 # escaping `'' for shell
 EFBLOCKS = $(subst ','\'',${E4BLOCKS})
-# this comment is a workaround for syntax highlighting bug in vim')
 
 config.h:
 	[ -d blocks ] || cp -R blocks.def blocks
