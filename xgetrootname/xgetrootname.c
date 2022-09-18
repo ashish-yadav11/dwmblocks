@@ -11,7 +11,7 @@ main(void)
                 fputs("Error: could not open display.\n", stderr);
                 return 1;
         }
-        if (XFetchName(dpy, DefaultRootWindow(dpy), &name) && name[0])
+        if (XFetchName(dpy, DefaultRootWindow(dpy), &name) && name)
                 puts(name);
         else
                 fputs("No name has been set for the root window.\n", stderr);
