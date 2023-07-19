@@ -36,7 +36,7 @@ clean:
 	rm -f dwmblocks sigdwmblocks/sigdwmblocks xgetrootname/xgetrootname
 
 BINDIR = ${DESTDIR}${PREFIX}/bin
-PIDDIR = /var/local/dwmblocks
+PIDDIR = ${DESTDIR}/var/local/dwmblocks
 
 install: all
 	mkdir -p ${BINDIR}
