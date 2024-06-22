@@ -1,0 +1,534 @@
+diff -ruN dwm-6.5-ori/config.def.h dwm-6.5/config.def.h
+--- dwm-6.5-ori/config.def.h	2022-11-08 10:44:19.595954763 +0530
++++ dwm-6.5/config.def.h	2024-06-23 04:34:25.623360309 +0530
+@@ -12,10 +12,26 @@
+ static const char col_gray3[]       = "#bbbbbb";
+ static const char col_gray4[]       = "#eeeeee";
+ static const char col_cyan[]        = "#005577";
++static const char col1[]            = "#ffffff";
++static const char col2[]            = "#ffffff";
++static const char col3[]            = "#ffffff";
++static const char col4[]            = "#ffffff";
++static const char col5[]            = "#ffffff";
++static const char col6[]            = "#ffffff";
++
++enum { SchemeNorm, SchemeCol1, SchemeCol2, SchemeCol3, SchemeCol4,
++       SchemeCol5, SchemeCol6, SchemeSel }; /* color schemes */
++
+ static const char *colors[][3]      = {
+ 	/*               fg         bg         border   */
+-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
++	[SchemeNorm]  = { col_gray3, col_gray1, col_gray2 },
++	[SchemeCol1]  = { col1,      col_gray1, col_gray2 },
++	[SchemeCol2]  = { col2,      col_gray1, col_gray2 },
++	[SchemeCol3]  = { col3,      col_gray1, col_gray2 },
++	[SchemeCol4]  = { col4,      col_gray1, col_gray2 },
++	[SchemeCol5]  = { col5,      col_gray1, col_gray2 },
++	[SchemeCol6]  = { col6,      col_gray1, col_gray2 },
++	[SchemeSel]   = { col_gray4, col_cyan,  col_cyan  },
+ };
+ 
+ /* tagging */
+@@ -104,7 +120,9 @@
+ 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
+ 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
+ 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
+-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
++	{ ClkStatusText,        0,              Button1,        sigdwmblocks,   {.i = 1} },
++	{ ClkStatusText,        0,              Button2,        sigdwmblocks,   {.i = 2} },
++	{ ClkStatusText,        0,              Button3,        sigdwmblocks,   {.i = 3} },
+ 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
+ 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
+ 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
+diff -ruN dwm-6.5-ori/config.h dwm-6.5/config.h
+--- dwm-6.5-ori/config.h	1970-01-01 05:30:00.000000000 +0530
++++ dwm-6.5/config.h	2024-06-23 04:35:12.723886798 +0530
+@@ -0,0 +1,134 @@
++/* See LICENSE file for copyright and license details. */
++
++/* appearance */
++static const unsigned int borderpx  = 1;        /* border pixel of windows */
++static const unsigned int snap      = 32;       /* snap pixel */
++static const int showbar            = 1;        /* 0 means no bar */
++static const int topbar             = 1;        /* 0 means bottom bar */
++static const char *fonts[]          = { "monospace:size=10" };
++static const char dmenufont[]       = "monospace:size=10";
++static const char col_gray1[]       = "#222222";
++static const char col_gray2[]       = "#444444";
++static const char col_gray3[]       = "#bbbbbb";
++static const char col_gray4[]       = "#eeeeee";
++static const char col_cyan[]        = "#005577";
++static const char col1[]            = "#ffffff";
++static const char col2[]            = "#ffffff";
++static const char col3[]            = "#ffffff";
++static const char col4[]            = "#ffffff";
++static const char col5[]            = "#ffffff";
++static const char col6[]            = "#ffffff";
++
++enum { SchemeNorm, SchemeCol1, SchemeCol2, SchemeCol3, SchemeCol4,
++       SchemeCol5, SchemeCol6, SchemeSel }; /* color schemes */
++
++static const char *colors[][3]      = {
++	/*               fg         bg         border   */
++	[SchemeNorm]  = { col_gray3, col_gray1, col_gray2 },
++	[SchemeCol1]  = { col1,      col_gray1, col_gray2 },
++	[SchemeCol2]  = { col2,      col_gray1, col_gray2 },
++	[SchemeCol3]  = { col3,      col_gray1, col_gray2 },
++	[SchemeCol4]  = { col4,      col_gray1, col_gray2 },
++	[SchemeCol5]  = { col5,      col_gray1, col_gray2 },
++	[SchemeCol6]  = { col6,      col_gray1, col_gray2 },
++	[SchemeSel]   = { col_gray4, col_cyan,  col_cyan  },
++};
++
++/* tagging */
++static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
++
++static const Rule rules[] = {
++	/* xprop(1):
++	 *	WM_CLASS(STRING) = instance, class
++	 *	WM_NAME(STRING) = title
++	 */
++	/* class      instance    title       tags mask     isfloating   monitor */
++	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
++	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
++};
++
++/* layout(s) */
++static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
++static const int nmaster     = 1;    /* number of clients in master area */
++static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
++static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
++
++static const Layout layouts[] = {
++	/* symbol     arrange function */
++	{ "[]=",      tile },    /* first entry is default */
++	{ "><>",      NULL },    /* no layout function means floating behavior */
++	{ "[M]",      monocle },
++};
++
++/* key definitions */
++#define MODKEY Mod1Mask
++#define TAGKEYS(KEY,TAG) \
++	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
++	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
++	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
++	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
++
++/* helper for spawning shell commands in the pre dwm-5.0 fashion */
++#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
++
++/* commands */
++static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
++static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
++static const char *termcmd[]  = { "st", NULL };
++
++static const Key keys[] = {
++	/* modifier                     key        function        argument */
++	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
++	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
++	{ MODKEY,                       XK_b,      togglebar,      {0} },
++	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
++	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
++	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
++	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
++	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
++	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
++	{ MODKEY,                       XK_Return, zoom,           {0} },
++	{ MODKEY,                       XK_Tab,    view,           {0} },
++	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
++	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
++	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
++	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
++	{ MODKEY,                       XK_space,  setlayout,      {0} },
++	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
++	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
++	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
++	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
++	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
++	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
++	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
++	TAGKEYS(                        XK_1,                      0)
++	TAGKEYS(                        XK_2,                      1)
++	TAGKEYS(                        XK_3,                      2)
++	TAGKEYS(                        XK_4,                      3)
++	TAGKEYS(                        XK_5,                      4)
++	TAGKEYS(                        XK_6,                      5)
++	TAGKEYS(                        XK_7,                      6)
++	TAGKEYS(                        XK_8,                      7)
++	TAGKEYS(                        XK_9,                      8)
++	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
++};
++
++/* button definitions */
++/* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
++static const Button buttons[] = {
++	/* click                event mask      button          function        argument */
++	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
++	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
++	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
++	{ ClkStatusText,        0,              Button1,        sigdwmblocks,   {.i = 1} },
++	{ ClkStatusText,        0,              Button2,        sigdwmblocks,   {.i = 2} },
++	{ ClkStatusText,        0,              Button3,        sigdwmblocks,   {.i = 3} },
++	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
++	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
++	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
++	{ ClkTagBar,            0,              Button1,        view,           {0} },
++	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
++	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
++	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
++};
++
+diff -ruN dwm-6.5-ori/dwm.c dwm-6.5/dwm.c
+--- dwm-6.5-ori/dwm.c	2024-06-22 20:37:55.131456457 +0530
++++ dwm-6.5/dwm.c	2024-06-23 04:35:04.903799384 +0530
+@@ -40,6 +40,7 @@
+ #include <X11/extensions/Xinerama.h>
+ #endif /* XINERAMA */
+ #include <X11/Xft/Xft.h>
++#include <fcntl.h>
+ 
+ #include "drw.h"
+ #include "util.h"
+@@ -56,10 +57,16 @@
+ #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
+ #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
+ #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
++#define TTEXTW(X)               (drw_fontset_getwidth(drw, (X)))
++
++#define STATUSLENGTH            256
++#define DWMBLOCKSLOCKFILE       "/var/local/dwmblocks/dwmblocks.pid"
++#define DELIMITERENDCHAR        10
++#define LSPAD                   (lrpad / 2) /* padding on left side of status text */
++#define RSPAD                   (lrpad / 2) /* padding on right side of status text */
+ 
+ /* enums */
+-enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
+-enum { SchemeNorm, SchemeSel }; /* color schemes */
++enum { CurNormal, CurHand, CurResize, CurMove, CurLast }; /* cursor */
+ enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
+        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
+@@ -124,6 +131,7 @@
+ 	unsigned int tagset[2];
+ 	int showbar;
+ 	int topbar;
++        int statushandcursor;
+ 	Client *clients;
+ 	Client *sel;
+ 	Client *stack;
+@@ -205,6 +213,7 @@
+ static void setup(void);
+ static void seturgent(Client *c, int urg);
+ static void showhide(Client *c);
++static void sigdwmblocks(const Arg *arg);
+ static void spawn(const Arg *arg);
+ static void tag(const Arg *arg);
+ static void tagmon(const Arg *arg);
+@@ -219,6 +228,7 @@
+ static void updatebarpos(Monitor *m);
+ static void updatebars(void);
+ static void updateclientlist(void);
++static void updatedwmblockssig(int x);
+ static int updategeom(void);
+ static void updatenumlockmask(void);
+ static void updatesizehints(Client *c);
+@@ -236,12 +246,15 @@
+ 
+ /* variables */
+ static const char broken[] = "broken";
+-static char stext[256];
++static char stextc[STATUSLENGTH];
++static char stexts[STATUSLENGTH];
+ static int screen;
+ static int sw, sh;           /* X display screen geometry width, height */
+-static int bh;               /* bar height */
++static int bh, blw, ble;     /* bar geometry */
++static int wstext;           /* width of status text */
+ static int lrpad;            /* sum of left and right padding for text */
+ static int (*xerrorxlib)(Display *, XErrorEvent *);
++static unsigned int dwmblockssig;
+ static unsigned int numlockmask = 0;
+ static void (*handler[LASTEvent]) (XEvent *) = {
+ 	[ButtonPress] = buttonpress,
+@@ -418,13 +431,13 @@
+ void
+ buttonpress(XEvent *e)
+ {
+-	unsigned int i, x, click;
++        int i, x;
++        unsigned int click;
+ 	Arg arg = {0};
+ 	Client *c;
+ 	Monitor *m;
+ 	XButtonPressedEvent *ev = &e->xbutton;
+ 
+-	click = ClkRootWin;
+ 	/* focus monitor if necessary */
+ 	if ((m = wintomon(ev->window)) && m != selmon) {
+ 		unfocus(selmon->sel, 1);
+@@ -432,25 +445,29 @@
+ 		focus(NULL);
+ 	}
+ 	if (ev->window == selmon->barwin) {
+-		i = x = 0;
+-		do
+-			x += TEXTW(tags[i]);
+-		while (ev->x >= x && ++i < LENGTH(tags));
+-		if (i < LENGTH(tags)) {
+-			click = ClkTagBar;
+-			arg.ui = 1 << i;
+-		} else if (ev->x < x + TEXTW(selmon->ltsymbol))
+-			click = ClkLtSymbol;
+-		else if (ev->x > selmon->ww - (int)TEXTW(stext))
+-			click = ClkStatusText;
+-		else
+-			click = ClkWinTitle;
++                if (ev->x < ble - blw) {
++                        i = -1, x = -ev->x;
++                        do
++                                x += TEXTW(tags[++i]);
++                        while (x <= 0);
++                        click = ClkTagBar;
++                        arg.ui = 1 << i;
++                } else if (ev->x < ble)
++                        click = ClkLtSymbol;
++                else if (ev->x < selmon->ww - wstext)
++                        click = ClkWinTitle;
++                else if ((x = selmon->ww - RSPAD - ev->x) > 0 && (x -= wstext - LSPAD - RSPAD) <= 0) {
++                        updatedwmblockssig(x);
++                        click = ClkStatusText;
++                } else
++                        return;
+ 	} else if ((c = wintoclient(ev->window))) {
+ 		focus(c);
+ 		restack(selmon);
+ 		XAllowEvents(dpy, ReplayPointer, CurrentTime);
+ 		click = ClkClientWin;
+-	}
++	} else
++                click = ClkRootWin;
+ 	for (i = 0; i < LENGTH(buttons); i++)
+ 		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
+ 		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
+@@ -698,7 +715,7 @@
+ void
+ drawbar(Monitor *m)
+ {
+-	int x, w, tw = 0;
++	int x, w;
+ 	int boxs = drw->fonts->h / 9;
+ 	int boxw = drw->fonts->h / 6 + 2;
+ 	unsigned int i, occ = 0, urg = 0;
+@@ -709,9 +726,32 @@
+ 
+ 	/* draw status first so it can be overdrawn by tags later */
+ 	if (m == selmon) { /* status is only drawn on selected monitor */
+-		drw_setscheme(drw, scheme[SchemeNorm]);
+-		tw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
+-		drw_text(drw, m->ww - tw, 0, tw, bh, 0, stext, 0);
++                char *stc = stextc;
++                char *stp = stextc;
++                char tmp;
++
++                drw_setscheme(drw, scheme[SchemeNorm]);
++                x = m->ww - wstext;
++                drw_rect(drw, x, 0, LSPAD, bh, 1, 1); x += LSPAD; /* to keep left padding clean */
++                for (;;) {
++                        if ((unsigned char)*stc >= ' ') {
++                                stc++;
++                                continue;
++                        }
++                        tmp = *stc;
++                        if (stp != stc) {
++                                *stc = '\0';
++                                x = drw_text(drw, x, 0, TTEXTW(stp), bh, 0, stp, 0);
++                        }
++                        if (tmp == '\0')
++                                break;
++                        if (tmp - DELIMITERENDCHAR - 1 < LENGTH(colors))
++                                drw_setscheme(drw, scheme[tmp - DELIMITERENDCHAR - 1]);
++                        *stc = tmp;
++                        stp = ++stc;
++                }
++                drw_setscheme(drw, scheme[SchemeNorm]);
++                drw_rect(drw, x, 0, m->ww - x, bh, 1, 1); /* to keep right padding clean */
+ 	}
+ 
+ 	for (c = m->clients; c; c = c->next) {
+@@ -734,7 +774,13 @@
+ 	drw_setscheme(drw, scheme[SchemeNorm]);
+ 	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
+ 
+-	if ((w = m->ww - tw - x) > bh) {
++        if (m == selmon) {
++                blw = w, ble = x;
++                w = m->ww - wstext - x;
++        } else
++                w = m->ww - x;
++
++	if (w > bh) {
+ 		if (m->sel) {
+ 			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
+ 			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
+@@ -1129,17 +1175,24 @@
+ motionnotify(XEvent *e)
+ {
+ 	static Monitor *mon = NULL;
++        int x;
+ 	Monitor *m;
+ 	XMotionEvent *ev = &e->xmotion;
+ 
+-	if (ev->window != root)
+-		return;
+-	if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
+-		unfocus(selmon->sel, 1);
+-		selmon = m;
+-		focus(NULL);
+-	}
+-	mon = m;
++        if (ev->window == root) {
++                if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
++                        unfocus(selmon->sel, 1);
++                        selmon = m;
++                        focus(NULL);
++                }
++                mon = m;
++        } else if (ev->window == selmon->barwin && (x = selmon->ww - RSPAD - ev->x) > 0
++                                                && (x -= wstext - LSPAD - RSPAD) <= 0)
++                updatedwmblockssig(x);
++        else if (selmon->statushandcursor) {
++                selmon->statushandcursor = 0;
++                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
++        }
+ }
+ 
+ void
+@@ -1581,6 +1634,7 @@
+ 	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+ 	/* init cursors */
+ 	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
++        cursor[CurHand] = drw_cur_create(drw, XC_hand2);
+ 	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
+ 	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
+ 	/* init appearance */
+@@ -1645,6 +1699,37 @@
+ }
+ 
+ void
++sigdwmblocks(const Arg *arg)
++{
++        static int fd = -1;
++        struct flock fl;
++        union sigval sv;
++
++        if (!dwmblockssig)
++                return;
++        fl.l_type = F_WRLCK;
++        fl.l_whence = SEEK_SET;
++        fl.l_start = 0;
++        fl.l_len = 0;
++        if (fd != -1) {
++                if (fcntl(fd, F_GETLK, &fl) != -1 && fl.l_type == F_WRLCK)
++                        goto signal;
++                close(fd);
++                fl.l_type = F_WRLCK;
++        }
++        if ((fd = open(DWMBLOCKSLOCKFILE, O_RDONLY | O_CLOEXEC)) == -1)
++                return;
++        if (fcntl(fd, F_GETLK, &fl) == -1 || fl.l_type != F_WRLCK) {
++                close(fd);
++                fd = -1;
++                return;
++        }
++signal:
++        sv.sival_int = (dwmblockssig << 8) | arg->i;
++        sigqueue(fl.l_pid, SIGRTMIN, sv);
++}
++
++void
+ spawn(const Arg *arg)
+ {
+ 	struct sigaction sa;
+@@ -1822,7 +1907,7 @@
+ 	XSetWindowAttributes wa = {
+ 		.override_redirect = True,
+ 		.background_pixmap = ParentRelative,
+-		.event_mask = ButtonPressMask|ExposureMask
++		.event_mask = ButtonPressMask|ExposureMask|PointerMotionMask
+ 	};
+ 	XClassHint ch = {"dwm", "dwm"};
+ 	for (m = mons; m; m = m->next) {
+@@ -1864,6 +1949,41 @@
+ 				(unsigned char *) &(c->win), 1);
+ }
+ 
++void
++updatedwmblockssig(int x)
++{
++        char *sts = stexts;
++        char *stp = stexts;
++        char tmp;
++
++        while (*sts != '\0') {
++                if ((unsigned char)*sts >= ' ') {
++                        sts++;
++                        continue;
++                }
++                tmp = *sts;
++                *sts = '\0';
++                x += TTEXTW(stp);
++                *sts = tmp;
++                if (x > 0) {
++                        if (tmp == DELIMITERENDCHAR)
++                                break;
++                        if (!selmon->statushandcursor) {
++                                selmon->statushandcursor = 1;
++                                XDefineCursor(dpy, selmon->barwin, cursor[CurHand]->cursor);
++                        }
++                        dwmblockssig = tmp;
++                        return;
++                }
++                stp = ++sts;
++        }
++        if (selmon->statushandcursor) {
++                selmon->statushandcursor = 0;
++                XDefineCursor(dpy, selmon->barwin, cursor[CurNormal]->cursor);
++        }
++        dwmblockssig = 0;
++}
++
+ int
+ updategeom(void)
+ {
+@@ -2005,9 +2125,27 @@
+ void
+ updatestatus(void)
+ {
+-	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
+-		strcpy(stext, "dwm-"VERSION);
+-	drawbar(selmon);
++	char rawstext[STATUSLENGTH];
++
++	if (gettextprop(root, XA_WM_NAME, rawstext, sizeof rawstext)) {
++                char stextp[STATUSLENGTH];
++                char *stp = stextp, *stc = stextc, *sts = stexts;
++
++                for (char *rst = rawstext; *rst != '\0'; rst++)
++                        if ((unsigned char)*rst >= ' ')
++                                *(stp++) = *(stc++) = *(sts++) = *rst;
++                        else if ((unsigned char)*rst > DELIMITERENDCHAR)
++                                *(stc++) = *rst;
++                        else
++                                *(sts++) = *rst;
++                *stp = *stc = *sts = '\0';
++                wstext = TTEXTW(stextp) + LSPAD + RSPAD;
++        } else {
++                strcpy(stextc, "dwm-"VERSION);
++                strcpy(stexts, stextc);
++                wstext = TTEXTW(stextc) + LSPAD + RSPAD;
++        }
++        drawbar(selmon);
+ }
+ 
+ void
